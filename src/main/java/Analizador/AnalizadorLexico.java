@@ -22,7 +22,7 @@ public class AnalizadorLexico {
     
     private Token[] tokens;
     private ErrorLexico[] errores;
-
+    private boolean cadenaCerrada;
     private int cantidadTokens;
     private int cantidadErrores;
 
@@ -276,5 +276,33 @@ public class AnalizadorLexico {
         }
 
         return TipoToken.LITERAL_ENTERO;
+    }
+    
+    private String leerCadena() {
+
+        String lexema = "";
+
+        cadenaCerrada = false;
+
+        lexema += caracterActual();
+        avanzar();
+
+        while (hayCaracteres()
+                && caracterActual() != '"'
+                && caracterActual() != '\n') {
+
+            lexema += caracterActual();
+            avanzar();
+        }
+
+        if (hayCaracteres() && caracterActual() == '"') {
+
+            lexema += caracterActual();
+            avanzar();
+
+            cadenaCerrada = true;
+        }
+
+        return lexema;
     }
 }
