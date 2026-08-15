@@ -13,15 +13,16 @@ import modelos.Token;
  * @author fernan
  */
 public class AnalizadorLexico {
+
     private String entrada;
     private int posicion;
     private int fila;
     private int columna;
     private int numeroToken;
     
-    private Token [] tokens;
-    private ErrorLexico [] errores;
-    
+    private Token[] tokens;
+    private ErrorLexico[] errores;
+
     private int cantidadTokens;
     private int cantidadErrores;
 
@@ -31,32 +32,55 @@ public class AnalizadorLexico {
         this.fila = 1;
         this.columna = 1;
         this.numeroToken = 1;
-        
+
         this.tokens = new Token[10];
         this.errores = new ErrorLexico[10];
         
         this.cantidadTokens = 0;
         this.cantidadErrores = 0;
     }
-    
-    private boolean hayCaracteres(){
+
+    private boolean hayCaracteres() {
         return posicion < entrada.length();
     }
-    
-    private char caracterActual(){
+
+    private char caracterActual() {
         return entrada.charAt(posicion);
     }
-    
-    public void analizar(){
-        while(hayCaracteres()){
+
+    public void analizar() {
+        while (hayCaracteres()) {
             char actual = caracterActual();
-            
+
             if (esEspacio(actual)) {
                 avanzar();
                 continue;
             }
+             if (esDigito(actual)) {
+
+                int filaInicial = fila;
+                int columnaInicial = columna;
+
+                String lexema = leerNumero();
+
+                TipoToken tipo = clasificarNumero(lexema);
+
+                Token token = new Token(
+                        numeroToken,
+                        lexema,
+                        tipo,
+                        filaInicial,
+                        columnaInicial
+                );
+
+                agregarToken(token);
+
+                numeroToken++;
+
+                continue;
+            }
             
-              if (esLetra(actual)) {
+            if (esLetra(actual)) {
                 int filaInicial = fila;
                 int columnaInicial = columna;
 
@@ -81,28 +105,35 @@ public class AnalizadorLexico {
             avanzar();
         }
     }
-    
+
     private void agregarToken(Token token) {
-        
+
         aumentarEspacioTokens();
 
         tokens[cantidadTokens] = token;
         cantidadTokens++;
     }
-    
+
     private void agregarError(ErrorLexico error) {
         aumentarEspacioErrores();
 
         errores[cantidadErrores] = error;
         cantidadErrores++;
     }
-    
+
     public void mostrarTokens() {
         for (int i = 0; i < cantidadTokens; i++) {
             System.out.println(tokens[i]);
         }
     }
     
+    public void mostrarErrores() {
+
+        for (int i = 0; i < cantidadErrores; i++) {
+            System.out.println(errores[i]);
+        }
+    }
+
     private void aumentarEspacioTokens() {
         if (cantidadTokens == tokens.length) {
 
@@ -115,11 +146,11 @@ public class AnalizadorLexico {
             tokens = nuevoArreglo;
         }
     }
-    
+
     private void aumentarEspacioErrores() {
         if (cantidadErrores == errores.length) {
-            ErrorLexico[] nuevoArreglo =
-                    new ErrorLexico[errores.length * 2];
+            ErrorLexico[] nuevoArreglo
+                    = new ErrorLexico[errores.length * 2];
             for (int i = 0; i < errores.length; i++) {
                 nuevoArreglo[i] = errores[i];
             }
@@ -127,24 +158,24 @@ public class AnalizadorLexico {
             errores = nuevoArreglo;
         }
     }
-    
+
     private boolean esLetra(char caracter) {
         return (caracter >= 'A' && caracter <= 'Z')
                 || (caracter >= 'a' && caracter <= 'z')
                 || caracter == '_';
     }
-    
+
     private boolean esDigito(char caracter) {
         return caracter >= '0' && caracter <= '9';
     }
-    
+
     private boolean esEspacio(char caracter) {
 
         return caracter == ' '
-                    || caracter == '\t'
-                    || caracter == '\r';
+                || caracter == '\t'
+                || caracter == '\r';
     }
-    
+
     private void avanzar() {
         if (caracterActual() == '\n') {
 
@@ -158,7 +189,7 @@ public class AnalizadorLexico {
             columna++;
         }
     }
-    
+
     private String leerIdentificador() {
         String lexema = "";
         while (hayCaracteres()
@@ -171,7 +202,7 @@ public class AnalizadorLexico {
 
         return lexema;
     }
-    
+
     private TipoToken clasificarPalabra(String lexema) {
 
         if (lexema.equals("AGENTE")
@@ -210,4 +241,40 @@ public class AnalizadorLexico {
         return TipoToken.IDENTIFICADOR;
     }
     
+     private String leerNumero() {
+         
+        String lexema = "";
+
+        while (hayCaracteres() && esDigito(caracterActual())) {
+
+            lexema += caracterActual();
+            avanzar();
+        }
+
+        if (hayCaracteres() && caracterActual() == '.') {
+
+            lexema += caracterActual();
+            avanzar();
+
+            while (hayCaracteres() && esDigito(caracterActual())) {
+
+                lexema += caracterActual();
+                avanzar();
+            }
+        }
+
+        return lexema;
+    }
+     
+    private TipoToken clasificarNumero(String lexema) {
+        
+        for (int i = 0; i < lexema.length(); i++) {
+
+            if (lexema.charAt(i) == '.') {
+                return TipoToken.LITERAL_DECIMAL;
+            }
+        }
+
+        return TipoToken.LITERAL_ENTERO;
+    }
 }
