@@ -79,6 +79,120 @@ public class AnalizadorLexico {
 
                 continue;
             }
+             if (actual == '"') {
+                int filaInicial = fila;
+                int columnaInicial = columna;
+
+                String lexema = leerCadena();
+
+                if (cadenaCerrada) {
+
+                    Token token = new Token(
+                            numeroToken,
+                            lexema,
+                            TipoToken.LITERAL_CADENA,
+                            filaInicial,
+                            columnaInicial
+                    );
+
+                    agregarToken(token);
+
+                    numeroToken++;
+
+                } else {
+
+                    ErrorLexico error = new ErrorLexico(
+                            lexema,
+                            "Cadena sin cerrar",
+                            filaInicial,
+                            columnaInicial
+                    );
+
+                    agregarError(error);
+                }
+
+                continue;
+            }
+            
+             if (actual == '=') {
+
+                int filaInicial = fila;
+                int columnaInicial = columna;
+
+                avanzar();
+
+                Token token = new Token(
+                        numeroToken,
+                        "=",
+                        TipoToken.OPERADOR_ASIGNACION,
+                        filaInicial,
+                        columnaInicial
+                );
+
+                agregarToken(token);
+
+                numeroToken++;
+
+                continue;
+            }
+            if (actual == '-') {
+
+                int filaInicial = fila;
+                int columnaInicial = columna;
+
+                avanzar();
+
+                if (hayCaracteres() && caracterActual() == '>') {
+
+                    avanzar();
+
+                    Token token = new Token(
+                            numeroToken,
+                            "->",
+                            TipoToken.CONECTOR,
+                            filaInicial,
+                            columnaInicial
+                    );
+
+                    agregarToken(token);
+
+                    numeroToken++;
+
+                } else {
+
+                    ErrorLexico error = new ErrorLexico(
+                            "-",
+                            "Operador o conector no reconocido",
+                            filaInicial,
+                            columnaInicial
+                    );
+
+                    agregarError(error);
+                }
+
+                continue;
+            }
+            if (actual == '+') {
+
+                int filaInicial = fila;
+                int columnaInicial = columna;
+
+                avanzar();
+
+                Token token = new Token(
+                        numeroToken,
+                        "+",
+                        TipoToken.OPERADOR_CONCATENACION,
+                        filaInicial,
+                        columnaInicial
+                );
+
+                agregarToken(token);
+
+                numeroToken++;
+
+                continue;
+            }
             
             if (esLetra(actual)) {
                 int filaInicial = fila;
