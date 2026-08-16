@@ -194,6 +194,28 @@ public class AnalizadorLexico {
                 continue;
             }
             
+            if (esDelimitador(actual)) {
+
+                int filaInicial = fila;
+                int columnaInicial = columna;
+
+                String lexema = leerDelimitador();
+
+                Token token = new Token(
+                        numeroToken,
+                        lexema,
+                        TipoToken.DELIMITADOR,
+                        filaInicial,
+                        columnaInicial
+                );
+
+                agregarToken(token);
+
+                numeroToken++;
+
+                continue;
+            }
+            
             if (esLetra(actual)) {
                 int filaInicial = fila;
                 int columnaInicial = columna;
@@ -418,5 +440,24 @@ public class AnalizadorLexico {
         }
 
         return lexema;
+    }
+    
+    private String leerDelimitador() {
+
+        String lexema = "";
+
+        lexema += caracterActual();
+        avanzar();
+
+        return lexema;
+    }
+     
+    private boolean esDelimitador(char caracter) {
+
+        return caracter == '{'
+                || caracter == '}'
+                || caracter == '('
+                || caracter == ')'
+                || caracter == ',';
     }
 }
