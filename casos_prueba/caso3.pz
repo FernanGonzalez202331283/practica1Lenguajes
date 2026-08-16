@@ -1,0 +1,12 @@
+@modelo Claude
+AGENTE analista
+
+variable texto = "Hola mundo"
+variable saludo = "Hola " + texto
+variable porcentaje = 0.7
+
+RESUMIR SOBRE texto EN 10 COMO texto
+ANALIZAR SOBRE texto COMO resumen
+TRADUCIR SOBRE texto EN ingles
+
+EJECUTAR analista

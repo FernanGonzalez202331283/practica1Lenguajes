@@ -1,0 +1,11 @@
+@modelo Claude
+@rol asistente
+@formato texto
+
+AGENTE asistente
+contexto "Ayudante de programación"
+
+variable nombre = "Juan"
+variable saludo = "Hola " + nombre
+
+PREGUNTAR SOBRE datos -> respuesta

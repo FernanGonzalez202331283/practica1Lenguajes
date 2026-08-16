@@ -1,0 +1,6 @@
+com/mycompany/practica1lenguajes/Practica1Lenguajes.class
+modelos/ErrorLexico.class
+Analizador/AnalizadorLexico.class
+modelos/Token.class
+modelos/TipoToken.class
+modelos/Reportes.class

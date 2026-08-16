@@ -1,0 +1,13 @@
+@modelo Claude
+@rol programador
+@formato codigo
+
+AGENTE programador
+contexto "Experto en Java"
+
+variable lenguaje = "Java"
+variable version = 21
+
+GENERAR SOBRE codigo -> resultado
+
+EXPORTAR resultado
