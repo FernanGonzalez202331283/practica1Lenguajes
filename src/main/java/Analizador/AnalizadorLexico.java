@@ -56,7 +56,44 @@ public class AnalizadorLexico {
                 avanzar();
                 continue;
             }
-             if (esDigito(actual)) {
+            
+            if (actual == '@') {
+
+                int filaInicial = fila;
+                int columnaInicial = columna;
+
+                String lexema = leerDirectiva();
+
+                if (esDirectiva(lexema)) {
+
+                    Token token = new Token(
+                            numeroToken,
+                            lexema,
+                            TipoToken.DIRECTIVA,
+                            filaInicial,
+                            columnaInicial
+                    );
+
+                    agregarToken(token);
+
+                    numeroToken++;
+
+                } else {
+
+                    ErrorLexico error = new ErrorLexico(
+                            lexema,
+                            "Directiva no reconocida",
+                            filaInicial,
+                            columnaInicial
+                    );
+
+                    agregarError(error);
+                }
+
+                continue;
+            }
+            
+            if (esDigito(actual)) {
 
                 int filaInicial = fila;
                 int columnaInicial = columna;
@@ -79,7 +116,8 @@ public class AnalizadorLexico {
 
                 continue;
             }
-             if (actual == '"') {
+            
+            if (actual == '"') {
                 int filaInicial = fila;
                 int columnaInicial = columna;
 
@@ -114,7 +152,7 @@ public class AnalizadorLexico {
                 continue;
             }
             
-             if (actual == '=') {
+            if (actual == '=') {
 
                 int filaInicial = fila;
                 int columnaInicial = columna;
@@ -135,6 +173,7 @@ public class AnalizadorLexico {
 
                 continue;
             }
+            
             if (actual == '-') {
 
                 int filaInicial = fila;
@@ -460,4 +499,29 @@ public class AnalizadorLexico {
                 || caracter == ')'
                 || caracter == ',';
     }
+    
+    private String leerDirectiva() {
+
+        String lexema = "";
+        lexema += caracterActual();
+        avanzar();
+        while (hayCaracteres()
+                && (esLetra(caracterActual())
+                || esDigito(caracterActual()))) {
+
+            lexema += caracterActual();
+            avanzar();
+        }
+
+        return lexema;
+    }
+
+    private boolean esDirectiva(String lexema) {
+
+        return lexema.equals("@modelo")
+                || lexema.equals("@rol")
+                || lexema.equals("@formato");
+    }
+    
+   
 }
