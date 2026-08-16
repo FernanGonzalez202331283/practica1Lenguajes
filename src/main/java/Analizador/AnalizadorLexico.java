@@ -57,6 +57,17 @@ public class AnalizadorLexico {
                 continue;
             }
             
+            if (esComentarioLinea()) {
+
+                ignorarComentarioLinea();
+                continue;
+            }
+            if (esComentarioBloque()) {
+
+                ignorarComentarioBloque();
+                continue;
+            }
+            
             if (actual == '@') {
 
                 int filaInicial = fila;
@@ -521,6 +532,59 @@ public class AnalizadorLexico {
         return lexema.equals("@modelo")
                 || lexema.equals("@rol")
                 || lexema.equals("@formato");
+    }
+    
+     private boolean esComentarioLinea() {
+
+        return caracterActual() == '/'
+                && posicion + 1 < entrada.length()
+                && entrada.charAt(posicion + 1) == '/';
+    }
+
+    private void ignorarComentarioLinea() {
+
+        while (hayCaracteres() && caracterActual() != '\n') {
+            avanzar();
+        }
+    }
+
+    private boolean esComentarioBloque() {
+
+        return caracterActual() == '/'
+                && posicion + 1 < entrada.length()
+                && entrada.charAt(posicion + 1) == '*';
+    }
+
+    private void ignorarComentarioBloque() {
+
+        int filaInicial = fila;
+        int columnaInicial = columna;
+
+        avanzar();
+        avanzar();
+
+        while (hayCaracteres()) {
+
+            if (caracterActual() == '*'
+                    && posicion + 1 < entrada.length()
+                    && entrada.charAt(posicion + 1) == '/') {
+
+                avanzar();
+                avanzar();
+                return;
+            }
+
+            avanzar();
+        }
+
+        ErrorLexico error = new ErrorLexico(
+                "/*",
+                "Comentario de bloque sin cerrar",
+                filaInicial,
+                columnaInicial
+        );
+
+        agregarError(error);
     }
     
    
