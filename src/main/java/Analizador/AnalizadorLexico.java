@@ -288,6 +288,15 @@ public class AnalizadorLexico {
                 continue;
             }
             
+             ErrorLexico error = new ErrorLexico(
+                    String.valueOf(actual),
+                    "Carácter no reconocido",
+                    fila,
+                    columna
+            );
+
+            agregarError(error);
+            
             avanzar();
         }
     }
@@ -585,6 +594,28 @@ public class AnalizadorLexico {
         );
 
         agregarError(error);
+    }
+    
+     public Token[] getTokens() {
+
+        Token[] resultado = new Token[cantidadTokens];
+
+        for (int i = 0; i < cantidadTokens; i++) {
+            resultado[i] = tokens[i];
+        }
+
+        return resultado;
+    }
+
+    public ErrorLexico[] getErrores() {
+
+        ErrorLexico[] resultado = new ErrorLexico[cantidadErrores];
+
+        for (int i = 0; i < cantidadErrores; i++) {
+            resultado[i] = errores[i];
+        }
+
+        return resultado;
     }
     
    
