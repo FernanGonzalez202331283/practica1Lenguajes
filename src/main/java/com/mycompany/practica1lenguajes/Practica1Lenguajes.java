@@ -5,6 +5,7 @@ package com.mycompany.practica1lenguajes;
 
 import Analizador.AnalizadorLexico;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
@@ -19,7 +20,7 @@ public class Practica1Lenguajes {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        int opcion;
+        int opcion = 0;
 
         do {
 
@@ -30,8 +31,17 @@ public class Practica1Lenguajes {
             System.out.println("2. Salir");
             System.out.print("Seleccione una opcion: ");
 
-            opcion = scanner.nextInt();
-            scanner.nextLine();
+            if (scanner.hasNextInt()) {
+                opcion = scanner.nextInt();
+                scanner.nextLine();
+            } else {
+                System.out.println();
+                System.out.println(
+                        "Debe ingresar una opcion numerica."
+                );
+                scanner.nextLine();
+                continue;
+            }
 
             if (opcion == 1) {
 
@@ -47,6 +57,30 @@ public class Practica1Lenguajes {
 
                     continue;
                 }
+                
+                
+                File archivo = new File(ruta);
+
+                if (!archivo.exists()) {
+
+                    System.out.println();
+                    System.out.println(
+                            "El archivo no existe."
+                    );
+
+                    continue;
+                }
+
+                if (!archivo.isFile()) {
+
+                    System.out.println();
+                    System.out.println(
+                            "La ruta indicada no corresponde a un archivo."
+                    );
+
+                    continue;
+                }
+
 
                 String entrada = "";
 

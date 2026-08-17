@@ -368,6 +368,7 @@ public class AnalizadorLexico {
 
         return caracter == ' '
                 || caracter == '\t'
+                || caracter == '\n'
                 || caracter == '\r';
     }
 
