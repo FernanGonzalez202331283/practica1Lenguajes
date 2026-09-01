@@ -1,0 +1,359 @@
+CREATE DATABASE transporte_extraurbano;
+USE transporte_extraurbano;
+
+CREATE TABLE usuario (
+    usuario VARCHAR(50) PRIMARY KEY,
+    contrasena VARCHAR(255) NOT NULL,
+    rol ENUM('ADMIN_SISTEMA', 'ADMIN_SUCURSAL', 'CLIENTE') NOT NULL,
+    estado BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE perfil (
+    usuario VARCHAR(50) PRIMARY KEY,
+    nit VARCHAR(30),
+    dpi VARCHAR(30),
+    nombre_completo VARCHAR(150) NOT NULL,
+    telefono VARCHAR(30),
+    direccion VARCHAR(250),
+
+    FOREIGN KEY (usuario)
+        REFERENCES usuario(usuario)
+);
+
+CREATE TABLE sucursal (
+    codigo_sucursal VARCHAR(20) PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL UNIQUE,
+    direccion VARCHAR(250) NOT NULL,
+    telefono VARCHAR(30),
+    municipio VARCHAR(100),
+    departamento VARCHAR(100),
+    latitud DECIMAL(10,7),
+    longitud DECIMAL(10,7),
+    estado BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE administrador_sucursal (
+    usuario VARCHAR(50) PRIMARY KEY,
+    codigo_sucursal VARCHAR(20) NOT NULL,
+
+    FOREIGN KEY (usuario)
+        REFERENCES usuario(usuario),
+
+    FOREIGN KEY (codigo_sucursal)
+        REFERENCES sucursal(codigo_sucursal)
+);
+
+CREATE TABLE configuracion (
+    codigo_configuracion VARCHAR(20) PRIMARY KEY,
+    depreciacion_por_km DECIMAL(10,2) NOT NULL,
+    fecha_configuracion DATE NOT NULL,
+
+    CHECK (depreciacion_por_km >= 0)
+);
+
+CREATE TABLE bus (
+    placa VARCHAR(20) PRIMARY KEY,
+    codigo_sucursal VARCHAR(20) NOT NULL,
+    foto VARCHAR(500),
+    marca VARCHAR(100) NOT NULL,
+    modelo VARCHAR(100) NOT NULL,
+    anio_fabricacion YEAR NOT NULL,
+    capacidad INT NOT NULL,
+    estado_operativo ENUM(
+        'DISPONIBLE',
+        'EN_VIAJE',
+        'MANTENIMIENTO',
+        'INACTIVO'
+    ) NOT NULL DEFAULT 'DISPONIBLE',
+    kilometraje_actual DECIMAL(10,2) NOT NULL DEFAULT 0,
+
+    FOREIGN KEY (codigo_sucursal)
+        REFERENCES sucursal(codigo_sucursal),
+
+    CHECK (capacidad > 0),
+    CHECK (kilometraje_actual >= 0)
+);
+
+CREATE TABLE chofer (
+    numero_licencia VARCHAR(50) PRIMARY KEY,
+    codigo_sucursal VARCHAR(20) NOT NULL,
+    foto VARCHAR(500),
+    nombre_completo VARCHAR(150) NOT NULL,
+    tipo_licencia VARCHAR(50) NOT NULL,
+    fecha_vencimiento_licencia DATE NOT NULL,
+    telefono VARCHAR(30),
+    salario_base_viaje DECIMAL(10,2) NOT NULL,
+    estado BOOLEAN NOT NULL DEFAULT TRUE,
+    
+    FOREIGN KEY (codigo_sucursal)
+        REFERENCES sucursal(codigo_sucursal),
+
+    CHECK (salario_base_viaje >= 0)
+);
+
+CREATE TABLE ruta (
+    codigo_ruta VARCHAR(20) PRIMARY KEY,
+    codigo_sucursal_origen VARCHAR(20) NOT NULL,
+    codigo_sucursal_destino VARCHAR(20) NOT NULL,
+    distancia_km DECIMAL(10,2) NOT NULL,
+    precio_boleto DECIMAL(10,2) NOT NULL,
+    estado BOOLEAN NOT NULL DEFAULT TRUE,
+
+    FOREIGN KEY (codigo_sucursal_origen)
+        REFERENCES sucursal(codigo_sucursal),
+
+    FOREIGN KEY (codigo_sucursal_destino)
+        REFERENCES sucursal(codigo_sucursal),
+
+    CHECK (distancia_km > 0),
+    CHECK (precio_boleto >= 0),
+    CHECK (codigo_sucursal_origen <> codigo_sucursal_destino)
+);
+
+CREATE TABLE viaje (
+    codigo_viaje VARCHAR(20) PRIMARY KEY,
+
+    tipo_viaje ENUM('REGULAR', 'PRIVADO') NOT NULL,
+
+    placa_bus VARCHAR(20),
+    numero_licencia VARCHAR(50),
+    codigo_ruta VARCHAR(20),
+
+    origen VARCHAR(250),
+    destino VARCHAR(250),
+
+    fecha_salida DATE NOT NULL,
+    hora_salida TIME NOT NULL,
+
+    fecha_llegada_estimada DATE NOT NULL,
+    hora_llegada_estimada TIME NOT NULL,
+
+    estado ENUM(
+        'PROGRAMADO',
+        'EN_CURSO',
+        'FINALIZADO',
+        'CANCELADO'
+    ) NOT NULL DEFAULT 'PROGRAMADO',
+
+    depreciacion_por_km DECIMAL(10,2),
+    depreciacion_total DECIMAL(10,2) DEFAULT 0,
+
+    FOREIGN KEY (placa_bus)
+        REFERENCES bus(placa),
+
+    FOREIGN KEY (numero_licencia)
+        REFERENCES chofer(numero_licencia),
+
+    FOREIGN KEY (codigo_ruta)
+        REFERENCES ruta(codigo_ruta),
+
+    CHECK (depreciacion_por_km >= 0),
+    CHECK (depreciacion_total >= 0)
+);
+
+CREATE TABLE alquiler (
+    codigo_alquiler VARCHAR(20) PRIMARY KEY,
+
+    codigo_viaje VARCHAR(20) NOT NULL UNIQUE,
+    usuario_cliente VARCHAR(50) NOT NULL,
+
+    numero_pasajeros INT NOT NULL,
+
+    fecha_retorno DATE,
+
+    precio_estimado DECIMAL(10,2) NOT NULL,
+    precio_confirmado DECIMAL(10,2),
+
+    estado ENUM(
+        'SOLICITADO',
+        'CONFIRMADO',
+        'PAGADO',
+        'CANCELADO',
+        'FINALIZADO'
+    ) NOT NULL DEFAULT 'SOLICITADO',
+
+    FOREIGN KEY (codigo_viaje)
+        REFERENCES viaje(codigo_viaje),
+
+    FOREIGN KEY (usuario_cliente)
+        REFERENCES usuario(usuario),
+
+    CHECK (numero_pasajeros > 0),
+    CHECK (precio_estimado >= 0),
+    CHECK (precio_confirmado >= 0)
+);
+
+CREATE TABLE salida_viaje (
+    codigo_viaje VARCHAR(20) PRIMARY KEY,
+
+    hora_real_salida TIME NOT NULL,
+    kilometraje_inicial DECIMAL(10,2) NOT NULL,
+
+    usuario_registro VARCHAR(50) NOT NULL,
+
+    FOREIGN KEY (codigo_viaje)
+        REFERENCES viaje(codigo_viaje),
+
+    FOREIGN KEY (usuario_registro)
+        REFERENCES usuario(usuario),
+
+    CHECK (kilometraje_inicial >= 0)
+);
+
+CREATE TABLE llegada_viaje (
+    codigo_viaje VARCHAR(20) PRIMARY KEY,
+
+    hora_real_llegada TIME NOT NULL,
+    kilometraje_final DECIMAL(10,2) NOT NULL,
+    gasto_combustible DECIMAL(10,2) NOT NULL,
+
+    usuario_registro VARCHAR(50) NOT NULL,
+
+    FOREIGN KEY (codigo_viaje)
+        REFERENCES viaje(codigo_viaje),
+
+    FOREIGN KEY (usuario_registro)
+        REFERENCES usuario(usuario),
+
+    CHECK (kilometraje_final >= 0),
+    CHECK (gasto_combustible >= 0)
+);
+
+CREATE TABLE cartera (
+    usuario VARCHAR(50) PRIMARY KEY,
+    saldo DECIMAL(12,2) NOT NULL DEFAULT 0,
+
+    FOREIGN KEY (usuario)
+        REFERENCES usuario(usuario),
+
+    CHECK (saldo >= 0)
+);
+
+
+CREATE TABLE movimiento_cartera (
+    codigo_movimiento VARCHAR(20) PRIMARY KEY,
+
+    usuario VARCHAR(50) NOT NULL,
+
+    tipo ENUM('RECARGA', 'PAGO') NOT NULL,
+    monto DECIMAL(12,2) NOT NULL,
+    fecha DATE NOT NULL,
+    descripcion VARCHAR(250),
+
+    FOREIGN KEY (usuario)
+        REFERENCES usuario(usuario),
+
+    CHECK (monto > 0)
+);
+
+
+CREATE TABLE boleto (
+    codigo_boleto VARCHAR(20) PRIMARY KEY,
+
+    codigo_viaje VARCHAR(20) NOT NULL,
+    usuario_cliente VARCHAR(50) NOT NULL,
+
+    numero_asiento INT NOT NULL,
+
+    precio DECIMAL(10,2) NOT NULL,
+    fecha_pago DATE NOT NULL,
+
+    estado ENUM('PAGADO', 'CANCELADO') NOT NULL DEFAULT 'PAGADO',
+
+    codigo_movimiento VARCHAR(20) NOT NULL,
+
+    FOREIGN KEY (codigo_viaje)
+        REFERENCES viaje(codigo_viaje),
+
+    FOREIGN KEY (usuario_cliente)
+        REFERENCES usuario(usuario),
+
+    FOREIGN KEY (codigo_movimiento)
+        REFERENCES movimiento_cartera(codigo_movimiento),
+
+    UNIQUE (codigo_viaje, numero_asiento),
+
+    CHECK (numero_asiento > 0),
+    CHECK (precio >= 0)
+);
+
+CREATE TABLE pago_alquiler (
+    codigo_pago VARCHAR(20) PRIMARY KEY,
+
+    codigo_alquiler VARCHAR(20) NOT NULL UNIQUE,
+    codigo_movimiento VARCHAR(20) NOT NULL UNIQUE,
+
+    monto DECIMAL(10,2) NOT NULL,
+    fecha_pago DATE NOT NULL,
+
+    FOREIGN KEY (codigo_alquiler)
+        REFERENCES alquiler(codigo_alquiler),
+
+    FOREIGN KEY (codigo_movimiento)
+        REFERENCES movimiento_cartera(codigo_movimiento),
+
+    CHECK (monto > 0)
+);
+
+CREATE TABLE mantenimiento (
+    codigo_mantenimiento VARCHAR(20) PRIMARY KEY,
+
+    placa_bus VARCHAR(20) NOT NULL,
+    fecha DATE NOT NULL,
+
+    monto_mano_obra DECIMAL(10,2) NOT NULL DEFAULT 0,
+    monto_repuestos DECIMAL(10,2) NOT NULL DEFAULT 0,
+
+    descripcion VARCHAR(500),
+
+    FOREIGN KEY (placa_bus)
+        REFERENCES bus(placa),
+
+    CHECK (monto_mano_obra >= 0),
+    CHECK (monto_repuestos >= 0)
+);
+
+
+CREATE TABLE repuesto (
+    codigo_repuesto VARCHAR(20) PRIMARY KEY,
+
+    nombre VARCHAR(150) NOT NULL,
+    descripcion VARCHAR(250),
+    precio DECIMAL(10,2) NOT NULL,
+    estado BOOLEAN NOT NULL DEFAULT TRUE,
+    CHECK (precio >= 0)
+);
+
+CREATE TABLE detalle_mantenimiento (
+    codigo_mantenimiento VARCHAR(20) NOT NULL,
+    codigo_repuesto VARCHAR(20) NOT NULL,
+
+    cantidad INT NOT NULL,
+    precio_unitario DECIMAL(10,2) NOT NULL,
+
+    PRIMARY KEY (codigo_mantenimiento, codigo_repuesto),
+
+    FOREIGN KEY (codigo_mantenimiento)
+        REFERENCES mantenimiento(codigo_mantenimiento),
+
+    FOREIGN KEY (codigo_repuesto)
+        REFERENCES repuesto(codigo_repuesto),
+
+    CHECK (cantidad > 0),
+    CHECK (precio_unitario >= 0)
+);
+
+CREATE TABLE costo_viaje (
+    codigo_viaje VARCHAR(20) PRIMARY KEY,
+
+    salario_chofer DECIMAL(10,2) NOT NULL DEFAULT 0,
+    combustible DECIMAL(10,2) NOT NULL DEFAULT 0,
+    depreciacion DECIMAL(10,2) NOT NULL DEFAULT 0,
+
+    FOREIGN KEY (codigo_viaje)
+        REFERENCES viaje(codigo_viaje),
+
+    CHECK (salario_chofer >= 0),
+    CHECK (combustible >= 0),
+    CHECK (depreciacion >= 0)
+);

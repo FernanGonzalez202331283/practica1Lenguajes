@@ -335,7 +335,142 @@ public class Reportes {
                 "Error al generar el reporte de errores: "
                 + e.getMessage()
         );
+        }
     }
-}
+    
+    public void generarReporteEstadisticas(Token[] tokens, ErrorLexico[] errores) {
+        try {
+
+            FileWriter archivo = new FileWriter(
+                    "reporte_estadisticas.html"
+            );
+
+            int[] cantidades = new int[TipoToken.values().length];
+
+            for (int i = 0; i < tokens.length; i++) {
+
+                TipoToken tipo = tokens[i].getTipo();
+
+                cantidades[tipo.ordinal()]++;
+            }
+
+            archivo.write("<!DOCTYPE html>");
+            archivo.write("<html>");
+            archivo.write("<head>");
+            archivo.write("<meta charset='UTF-8'>");
+            archivo.write("<title>Reporte de Estadísticas</title>");
+
+            archivo.write("<style>");
+
+            archivo.write("body {");
+            archivo.write("font-family: Arial, sans-serif;");
+            archivo.write("background: #eef2f3;");
+            archivo.write("margin: 0;");
+            archivo.write("padding: 40px;");
+            archivo.write("}");
+
+            archivo.write(".contenedor {");
+            archivo.write("max-width: 900px;");
+            archivo.write("margin: auto;");
+            archivo.write("background-color: white;");
+            archivo.write("padding: 30px;");
+            archivo.write("border-radius: 12px;");
+            archivo.write("}");
+
+            archivo.write("h1 {");
+            archivo.write("text-align: center;");
+            archivo.write("color: #2c3e50;");
+            archivo.write("}");
+
+            archivo.write(".resumen {");
+            archivo.write("text-align: center;");
+            archivo.write("margin-bottom: 25px;");
+            archivo.write("font-size: 18px;");
+            archivo.write("}");
+
+            archivo.write("table {");
+            archivo.write("width: 100%;");
+            archivo.write("border-collapse: collapse;");
+            archivo.write("}");
+
+            archivo.write("th {");
+            archivo.write("background-color: #34495e;");
+            archivo.write("color: white;");
+            archivo.write("padding: 12px;");
+            archivo.write("}");
+
+            archivo.write("td {");
+            archivo.write("padding: 10px;");
+            archivo.write("text-align: center;");
+            archivo.write("border-bottom: 1px solid #ddd;");
+            archivo.write("}");
+
+            archivo.write("</style>");
+
+            archivo.write("</head>");
+            archivo.write("<body>");
+
+            archivo.write("<div class='contenedor'>");
+
+            archivo.write("<h1>Reporte de Estadísticas</h1>");
+
+            archivo.write("<div class='resumen'>");
+
+            archivo.write("<p>Total de tokens: "
+                    + tokens.length
+                    + "</p>");
+
+            archivo.write("<p>Total de errores: "
+                    + errores.length
+                    + "</p>");
+
+            archivo.write("</div>");
+
+            archivo.write("<table>");
+
+            archivo.write("<tr>");
+            archivo.write("<th>Tipo de Token</th>");
+            archivo.write("<th>Cantidad</th>");
+            archivo.write("</tr>");
+
+            TipoToken[] tipos = TipoToken.values();
+
+            for (int i = 0; i < tipos.length; i++) {
+
+                archivo.write("<tr>");
+
+                archivo.write("<td>");
+                archivo.write(tipos[i].toString());
+                archivo.write("</td>");
+
+                archivo.write("<td>");
+                archivo.write(String.valueOf(cantidades[i]));
+                archivo.write("</td>");
+
+                archivo.write("</tr>");
+            }
+
+            archivo.write("</table>");
+
+            archivo.write("</div>");
+
+            archivo.write("</body>");
+            archivo.write("</html>");
+
+            archivo.close();
+
+            System.out.println(
+                    "Reporte de estadísticas generado correctamente."
+            );
+
+        } catch (IOException e) {
+
+            System.out.println(
+                    "Error al generar el reporte de estadísticas: "
+                    + e.getMessage()
+            );
+        }
+    }
+
     
 }

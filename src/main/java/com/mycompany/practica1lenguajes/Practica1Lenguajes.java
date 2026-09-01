@@ -139,6 +139,10 @@ public class Practica1Lenguajes {
                 reporte.generarReporteErrores(
                         analizador.getErrores()
                 );
+                reporte.generarReporteEstadisticas(
+                        analizador.getTokens(),
+                        analizador.getErrores()
+                );
 
                 System.out.println();
                 System.out.println(

@@ -416,6 +416,7 @@ public class AnalizadorLexico {
                 || lexema.equals("ANALIZAR")
                 || lexema.equals("TRADUCIR")
                 || lexema.equals("CLASIFICAR")
+                || lexema.equals("CODIFICAR")
                 || lexema.equals("EXTRAER")) {
 
             return TipoToken.COMANDO_IA;
@@ -518,6 +519,7 @@ public class AnalizadorLexico {
                 || caracter == '}'
                 || caracter == '('
                 || caracter == ')'
+                || caracter == ';'
                 || caracter == ',';
     }
     
