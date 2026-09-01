@@ -5,8 +5,10 @@
 package Interfaz;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -80,6 +82,11 @@ public class Vista extends javax.swing.JFrame {
         });
 
         btnGuardar.setText("Guardar");
+        btnGuardar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGuardarActionPerformed(evt);
+            }
+        });
 
         btnAnalizar.setText("Analizar");
 
@@ -295,6 +302,47 @@ public class Vista extends javax.swing.JFrame {
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem3ActionPerformed
+
+    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
+        // TODO add your handling code here:
+        JFileChooser selector = new JFileChooser();
+
+        selector.setDialogTitle("Guardar archivo PromptZal");
+
+        int resultado = selector.showSaveDialog(this);
+
+        if (resultado == JFileChooser.APPROVE_OPTION) {
+
+            File archivo = selector.getSelectedFile();
+
+            try {
+
+                BufferedWriter escritor = new BufferedWriter(
+                    new FileWriter(archivo)
+                );
+
+                escritor.write(txtEditor.getText());
+
+                escritor.close();
+
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Archivo guardado correctamente.",
+                    "Guardar",
+                    JOptionPane.INFORMATION_MESSAGE
+                );
+
+            } catch (IOException e) {
+
+                JOptionPane.showMessageDialog(
+                    this,
+                    "No se pudo guardar el archivo.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+                );
+            }
+        }
+    }//GEN-LAST:event_btnGuardarActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAbrir;
