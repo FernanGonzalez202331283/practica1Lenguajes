@@ -4,6 +4,8 @@
  */
 package Interfaz;
 
+import Analizador.AnalizadorLexico;
+import graficos.GeneradorAFD;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -12,6 +14,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
+import modelos.ErrorLexico;
+import modelos.Reportes;
+import modelos.Token;
 
 /**
  *
@@ -58,11 +65,11 @@ public class Vista extends javax.swing.JFrame {
         jMenuItem4 = new javax.swing.JMenuItem();
         jMenu4 = new javax.swing.JMenu();
         jMenu5 = new javax.swing.JMenu();
-        jMenuItem5 = new javax.swing.JMenuItem();
-        jMenuItem6 = new javax.swing.JMenuItem();
-        jMenuItem7 = new javax.swing.JMenuItem();
+        ReporteDeTokens = new javax.swing.JMenuItem();
+        ReporteDeErrores = new javax.swing.JMenuItem();
+        ReporteDeEstadisticas = new javax.swing.JMenuItem();
         jMenu6 = new javax.swing.JMenu();
-        jMenuItem8 = new javax.swing.JMenuItem();
+        GeneradorDeAFD = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("PromptZal - Analizador Lexico");
@@ -89,20 +96,25 @@ public class Vista extends javax.swing.JFrame {
         });
 
         btnAnalizar.setText("Analizar");
+        btnAnalizar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAnalizarActionPerformed(evt);
+            }
+        });
 
         tablaTokens.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "Lexema", "Tipo", "Linea", "Columna"
+                "No.", "Lexema", "Tipo", "Linea", "Columna"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false
+                false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -119,7 +131,7 @@ public class Vista extends javax.swing.JFrame {
                 {null, null, null, null}
             },
             new String [] {
-                "Lexema", "Tipo de Error", "Linea", "Columna"
+                "Lexema", "Tipo de Error", "Fila", "Columna"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -229,21 +241,41 @@ public class Vista extends javax.swing.JFrame {
 
         jMenu5.setText("Reportes");
 
-        jMenuItem5.setText("Reporte de Tokens");
-        jMenu5.add(jMenuItem5);
+        ReporteDeTokens.setText("Reporte de Tokens");
+        ReporteDeTokens.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ReporteDeTokensActionPerformed(evt);
+            }
+        });
+        jMenu5.add(ReporteDeTokens);
 
-        jMenuItem6.setText("Reporte de Errores");
-        jMenu5.add(jMenuItem6);
+        ReporteDeErrores.setText("Reporte de Errores");
+        ReporteDeErrores.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ReporteDeErroresActionPerformed(evt);
+            }
+        });
+        jMenu5.add(ReporteDeErrores);
 
-        jMenuItem7.setText("Estadisticas");
-        jMenu5.add(jMenuItem7);
+        ReporteDeEstadisticas.setText("Estadisticas");
+        ReporteDeEstadisticas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ReporteDeEstadisticasActionPerformed(evt);
+            }
+        });
+        jMenu5.add(ReporteDeEstadisticas);
 
         jMenuBar1.add(jMenu5);
 
         jMenu6.setText("Automata");
 
-        jMenuItem8.setText("Generar AFD");
-        jMenu6.add(jMenuItem8);
+        GeneradorDeAFD.setText("Generar AFD");
+        GeneradorDeAFD.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                GeneradorDeAFDActionPerformed(evt);
+            }
+        });
+        jMenu6.add(GeneradorDeAFD);
 
         jMenuBar1.add(jMenu6);
 
@@ -254,9 +286,18 @@ public class Vista extends javax.swing.JFrame {
 
     private void btnAbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAbrirActionPerformed
         // TODO add your handling code here:
+        
         JFileChooser selector = new JFileChooser();
-
         selector.setDialogTitle("Abrir archivo PromptZal");
+
+        // Mostrar solamente archivos .pz
+        FileNameExtensionFilter filtro =
+                new FileNameExtensionFilter(
+                        "Archivos PromptZal (*.pz)",
+                        "pz"
+                );
+
+        selector.setFileFilter(filtro);
 
         int resultado = selector.showOpenDialog(this);
 
@@ -266,9 +307,8 @@ public class Vista extends javax.swing.JFrame {
 
             try {
 
-                BufferedReader lector = new BufferedReader(
-                    new FileReader(archivo)
-                );
+                BufferedReader lector =
+                        new BufferedReader(new FileReader(archivo));
 
                 StringBuilder contenido = new StringBuilder();
 
@@ -281,15 +321,16 @@ public class Vista extends javax.swing.JFrame {
 
                 lector.close();
 
+                // Mostrar el contenido en el editor
                 txtEditor.setText(contenido.toString());
 
             } catch (IOException e) {
 
                 JOptionPane.showMessageDialog(
-                    this,
-                    "No se pudo abrir el archivo.",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
+                        this,
+                        "No se pudo abrir el archivo.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
                 );
             }
         }
@@ -305,46 +346,233 @@ public class Vista extends javax.swing.JFrame {
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
         // TODO add your handling code here:
-        JFileChooser selector = new JFileChooser();
+          JFileChooser selector = new JFileChooser();
+          
+            selector.setDialogTitle("Guardar archivo PromptZal");
 
-        selector.setDialogTitle("Guardar archivo PromptZal");
+            // Mostrar solamente archivos .pz
+            FileNameExtensionFilter filtro =
+                    new FileNameExtensionFilter(
+                            "Archivos PromptZal (*.pz)",
+                            "pz"
+                    );
 
-        int resultado = selector.showSaveDialog(this);
+            selector.setFileFilter(filtro);
 
-        if (resultado == JFileChooser.APPROVE_OPTION) {
+            int resultado = selector.showSaveDialog(this);
 
-            File archivo = selector.getSelectedFile();
+            if (resultado == JFileChooser.APPROVE_OPTION) {
 
-            try {
+                File archivo = selector.getSelectedFile();
 
-                BufferedWriter escritor = new BufferedWriter(
-                    new FileWriter(archivo)
-                );
+                // Agregar .pz si el usuario no lo escribió
+                String nombre = archivo.getName();
 
-                escritor.write(txtEditor.getText());
+                if (!nombre.toLowerCase().endsWith(".pz")) {
+                    archivo = new File(
+                            archivo.getParentFile(),
+                            nombre + ".pz"
+                    );
+                }
 
-                escritor.close();
+                try {
 
-                JOptionPane.showMessageDialog(
-                    this,
-                    "Archivo guardado correctamente.",
-                    "Guardar",
-                    JOptionPane.INFORMATION_MESSAGE
-                );
+                    BufferedWriter escritor = new BufferedWriter(
+                            new FileWriter(archivo)
+                    );
 
-            } catch (IOException e) {
+                    escritor.write(txtEditor.getText());
+                    escritor.close();
 
-                JOptionPane.showMessageDialog(
-                    this,
-                    "No se pudo guardar el archivo.",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
-                );
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Archivo guardado correctamente como:\n"
+                            + archivo.getName(),
+                            "Guardar",
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
+
+                } catch (IOException e) {
+
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "No se pudo guardar el archivo.",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                }
             }
-        }
     }//GEN-LAST:event_btnGuardarActionPerformed
 
+    private void btnAnalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnalizarActionPerformed
+        // TODO add your handling code here:
+        
+            // Obtener el código escrito en el editor
+            String entrada = txtEditor.getText();
+
+            // Crear el analizador léxico
+            AnalizadorLexico analizador = new AnalizadorLexico(entrada);
+
+            // Ejecutar el análisis
+            analizador.analizar();
+
+            // Obtener tokens y errores
+            Token[] tokens = analizador.getTokens();
+            ErrorLexico[] errores = analizador.getErrores();
+
+            // Obtener los modelos de las tablas
+            DefaultTableModel modeloTokens =
+                    (DefaultTableModel) tablaTokens.getModel();
+
+            DefaultTableModel modeloErrores =
+                    (DefaultTableModel) tablaErrores.getModel();
+
+            // Limpiar resultados anteriores
+            modeloTokens.setRowCount(0);
+            modeloErrores.setRowCount(0);
+
+            // Mostrar tokens
+            for (Token token : tokens) {
+
+                modeloTokens.addRow(new Object[]{
+                    token.getNumero(),
+                    token.getLexema(),
+                    token.getTipo(),
+                    token.getFila(),
+                    token.getColumna()
+                });
+            }
+
+            // Mostrar errores
+            for (ErrorLexico error : errores) {
+
+                modeloErrores.addRow(new Object[]{
+                    error.getLexema(),
+                    error.getTipoError(),
+                    error.getFila(),
+                    error.getColumna()
+                });
+            }
+
+            // Mostrar mensaje del resultado
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Análisis terminado.\n"
+                    + "Tokens encontrados: " + tokens.length + "\n"
+                    + "Errores encontrados: " + errores.length,
+                    "Análisis léxico",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+    }//GEN-LAST:event_btnAnalizarActionPerformed
+
+    private void ReporteDeTokensActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ReporteDeTokensActionPerformed
+        // TODO add your handling code here:
+        
+    // Obtener el código actual del editor
+    String entrada = txtEditor.getText();
+
+    // Crear el analizador léxico
+    AnalizadorLexico analizador = new AnalizadorLexico(entrada);
+
+    // Analizar el código
+    analizador.analizar();
+
+    // Obtener los tokens
+    Token[] tokens = analizador.getTokens();
+
+    // Crear objeto de reportes
+    Reportes reportes = new Reportes();
+
+    // Generar reporte HTML
+    reportes.generarReporteTokens(tokens);
+
+    // Avisar al usuario
+    JOptionPane.showMessageDialog(
+            this,
+            "Reporte de tokens generado correctamente.\n"
+            + "Archivo: reporte_tokens.html",
+            "Reporte de Tokens",
+            JOptionPane.INFORMATION_MESSAGE
+    );
+    }//GEN-LAST:event_ReporteDeTokensActionPerformed
+
+    private void ReporteDeErroresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ReporteDeErroresActionPerformed
+        // TODO add your handling code here:
+        String entrada = txtEditor.getText();
+
+        AnalizadorLexico analizador = new AnalizadorLexico(entrada);
+        analizador.analizar();
+
+        ErrorLexico[] errores = analizador.getErrores();
+
+        Reportes reportes = new Reportes();
+        reportes.generarReporteErrores(errores);
+
+        JOptionPane.showMessageDialog(
+                this,
+                "Reporte de errores generado correctamente.\n"
+                + "Archivo: reporte_errores.html",
+                "Reporte de Errores",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+    }//GEN-LAST:event_ReporteDeErroresActionPerformed
+
+    private void ReporteDeEstadisticasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ReporteDeEstadisticasActionPerformed
+        String entrada = txtEditor.getText();
+
+        AnalizadorLexico analizador = new AnalizadorLexico(entrada);
+        analizador.analizar();
+
+        Token[] tokens = analizador.getTokens();
+        ErrorLexico[] errores = analizador.getErrores();
+
+        Reportes reportes = new Reportes();
+        reportes.generarReporteEstadisticas(tokens, errores);
+
+        JOptionPane.showMessageDialog(
+                this,
+                "Reporte de estadísticas generado correctamente.\n"
+                + "Archivo: reporte_estadisticas.html",
+                "Reporte de Estadísticas",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+
+    }//GEN-LAST:event_ReporteDeEstadisticasActionPerformed
+
+    private void GeneradorDeAFDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GeneradorDeAFDActionPerformed
+        // TODO add your handling code here:
+        
+        // Rutas de salida (ajusta la carpeta si quieres otra ubicación)
+    String rutaDot = "salida/afd_promptzal.dot";
+    String rutaImagen = "salida/afd_promptzal.png";
+
+    GeneradorAFD.ResultadoRender resultado = GeneradorAFD.generarImagen(rutaDot, rutaImagen);
+
+    if (resultado.exito) {
+        // Mostrar la imagen en una ventana emergente
+        javax.swing.ImageIcon icono = new javax.swing.ImageIcon(resultado.rutaImagen);
+        javax.swing.JLabel label = new javax.swing.JLabel(icono);
+        javax.swing.JScrollPane scroll = new javax.swing.JScrollPane(label);
+        scroll.setPreferredSize(new java.awt.Dimension(800, 600));
+
+        javax.swing.JDialog dialogo = new javax.swing.JDialog(this, "AFD de PromptZal", true);
+        dialogo.getContentPane().add(scroll);
+        dialogo.pack();
+        dialogo.setLocationRelativeTo(this);
+        dialogo.setVisible(true);
+    } else {
+        javax.swing.JOptionPane.showMessageDialog(this,
+                resultado.mensajeError,
+                "Error al generar el AFD",
+                javax.swing.JOptionPane.ERROR_MESSAGE);
+    }
+    }//GEN-LAST:event_GeneradorDeAFDActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem GeneradorDeAFD;
+    private javax.swing.JMenuItem ReporteDeErrores;
+    private javax.swing.JMenuItem ReporteDeEstadisticas;
+    private javax.swing.JMenuItem ReporteDeTokens;
     private javax.swing.JButton btnAbrir;
     private javax.swing.JButton btnAnalizar;
     private javax.swing.JButton btnGuardar;
@@ -360,10 +588,6 @@ public class Vista extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
-    private javax.swing.JMenuItem jMenuItem5;
-    private javax.swing.JMenuItem jMenuItem6;
-    private javax.swing.JMenuItem jMenuItem7;
-    private javax.swing.JMenuItem jMenuItem8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
