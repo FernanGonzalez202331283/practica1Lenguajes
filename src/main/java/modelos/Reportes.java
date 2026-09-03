@@ -62,6 +62,8 @@ public class Reportes {
             archivo.write("margin-bottom: 25px;");
             archivo.write("}");
 
+            /* TABLA */
+
             archivo.write("table {");
             archivo.write("width: 100%;");
             archivo.write("border-collapse: collapse;");
@@ -92,16 +94,103 @@ public class Reportes {
             archivo.write("transition: 0.2s;");
             archivo.write("}");
 
-            archivo.write("td:nth-child(2) {");
+            /* LEXEMA */
+
+            archivo.write(".lexema {");
             archivo.write("font-weight: bold;");
-            archivo.write("color: #34495e;");
+            archivo.write("padding: 5px 9px;");
+            archivo.write("border-radius: 6px;");
+            archivo.write("display: inline-block;");
             archivo.write("}");
 
-            archivo.write(".pie {");
-            archivo.write("margin-top: 20px;");
-            archivo.write("text-align: right;");
+            /* COLORES DE LOS TOKENS */
+
+            archivo.write(".directiva {");
+            archivo.write("color: #8e44ad;");
+            archivo.write("background-color: #f4ecf7;");
+            archivo.write("}");
+
+            archivo.write(".reservada {");
+            archivo.write("color: #2980b9;");
+            archivo.write("background-color: #ebf5fb;");
+            archivo.write("}");
+
+            archivo.write(".comando-ia {");
+            archivo.write("color: #27ae60;");
+            archivo.write("background-color: #eafaf1;");
+            archivo.write("}");
+
+            archivo.write(".funcion {");
+            archivo.write("color: #d35400;");
+            archivo.write("background-color: #fdf2e9;");
+            archivo.write("}");
+
+            archivo.write(".conector {");
+            archivo.write("color: #16a085;");
+            archivo.write("background-color: #e8f8f5;");
+            archivo.write("}");
+
+            archivo.write(".identificador {");
+            archivo.write("color: #34495e;");
+            archivo.write("background-color: #f2f3f4;");
+            archivo.write("}");
+
+            archivo.write(".literal-cadena {");
+            archivo.write("color: #795548;");
+            archivo.write("background-color: #efebe9;");
+            archivo.write("}");
+
+            archivo.write(".literal-entero {");
+            archivo.write("color: #b7950b;");
+            archivo.write("background-color: #fcf3cf;");
+            archivo.write("}");
+
+            archivo.write(".literal-decimal {");
+            archivo.write("color: #ca6f1e;");
+            archivo.write("background-color: #fbeee6;");
+            archivo.write("}");
+
+            archivo.write(".operador-asignacion {");
+            archivo.write("color: #c0392b;");
+            archivo.write("background-color: #fadbd8;");
+            archivo.write("}");
+
+            archivo.write(".operador-concatenacion {");
+            archivo.write("color: #e67e22;");
+            archivo.write("background-color: #fef5e7;");
+            archivo.write("}");
+
+            archivo.write(".delimitador {");
+            archivo.write("color: #616a6b;");
+            archivo.write("background-color: #eaeded;");
+            archivo.write("}");
+
+            /* LEYENDA */
+
+            archivo.write(".leyenda {");
+            archivo.write("margin-top: 25px;");
+            archivo.write("padding: 15px;");
+            archivo.write("background-color: #f8f9fa;");
+            archivo.write("border-radius: 8px;");
+            archivo.write("}");
+
+            archivo.write(".leyenda h3 {");
+            archivo.write("margin-top: 0;");
+            archivo.write("text-align: center;");
+            archivo.write("}");
+
+            archivo.write(".leyenda-contenido {");
+            archivo.write("display: flex;");
+            archivo.write("flex-wrap: wrap;");
+            archivo.write("gap: 10px;");
+            archivo.write("justify-content: center;");
+            archivo.write("}");
+
+            archivo.write(".leyenda span {");
+            archivo.write("padding: 6px 10px;");
+            archivo.write("border-radius: 6px;");
+            archivo.write("font-weight: bold;");
             archivo.write("font-size: 13px;");
-            archivo.write("color: #7f8c8d;");
             archivo.write("}");
 
             archivo.write("</style>");
@@ -109,7 +198,11 @@ public class Reportes {
             archivo.write("</head>");
             archivo.write("<body>");
 
+            archivo.write("<div class='contenedor'>");
+
             archivo.write("<h1>Reporte de Tokens</h1>");
+
+            archivo.write("<p class='descripcion'>Tokens reconocidos por el analizador léxico</p>");
 
             archivo.write("<table>");
 
@@ -123,6 +216,59 @@ public class Reportes {
 
             for (int i = 0; i < tokens.length; i++) {
 
+                String clase = "";
+
+                switch (tokens[i].getTipo()) {
+
+                    case DIRECTIVA:
+                        clase = "directiva";
+                        break;
+
+                    case RESERVADA:
+                        clase = "reservada";
+                        break;
+
+                    case COMANDO_IA:
+                        clase = "comando-ia";
+                        break;
+
+                    case FUNCION:
+                        clase = "funcion";
+                        break;
+
+                    case CONECTOR:
+                        clase = "conector";
+                        break;
+
+                    case IDENTIFICADOR:
+                        clase = "identificador";
+                        break;
+
+                    case LITERAL_CADENA:
+                        clase = "literal-cadena";
+                        break;
+
+                    case LITERAL_ENTERO:
+                        clase = "literal-entero";
+                        break;
+
+                    case LITERAL_DECIMAL:
+                        clase = "literal-decimal";
+                        break;
+
+                    case OPERADOR_ASIGNACION:
+                        clase = "operador-asignacion";
+                        break;
+
+                    case OPERADOR_CONCATENACION:
+                        clase = "operador-concatenacion";
+                        break;
+
+                    case DELIMITADOR:
+                        clase = "delimitador";
+                        break;
+                }
+
                 archivo.write("<tr>");
 
                 archivo.write("<td>");
@@ -130,7 +276,9 @@ public class Reportes {
                 archivo.write("</td>");
 
                 archivo.write("<td>");
+                archivo.write("<span class='lexema " + clase + "'>");
                 archivo.write(tokens[i].getLexema());
+                archivo.write("</span>");
                 archivo.write("</td>");
 
                 archivo.write("<td>");
@@ -150,6 +298,32 @@ public class Reportes {
 
             archivo.write("</table>");
 
+            /* LEYENDA */
+
+            archivo.write("<div class='leyenda'>");
+
+            archivo.write("<h3>Tipos de Token</h3>");
+
+            archivo.write("<div class='leyenda-contenido'>");
+
+            archivo.write("<span class='directiva'>DIRECTIVA</span>");
+            archivo.write("<span class='reservada'>RESERVADA</span>");
+            archivo.write("<span class='comando-ia'>COMANDO IA</span>");
+            archivo.write("<span class='funcion'>FUNCIÓN</span>");
+            archivo.write("<span class='conector'>CONECTOR</span>");
+            archivo.write("<span class='identificador'>IDENTIFICADOR</span>");
+            archivo.write("<span class='literal-cadena'>LITERAL CADENA</span>");
+            archivo.write("<span class='literal-entero'>LITERAL ENTERO</span>");
+            archivo.write("<span class='literal-decimal'>LITERAL DECIMAL</span>");
+            archivo.write("<span class='operador-asignacion'>ASIGNACIÓN</span>");
+            archivo.write("<span class='operador-concatenacion'>CONCATENACIÓN</span>");
+            archivo.write("<span class='delimitador'>DELIMITADOR</span>");
+
+            archivo.write("</div>");
+            archivo.write("</div>");
+
+            archivo.write("</div>");
+
             archivo.write("</body>");
             archivo.write("</html>");
 
@@ -165,6 +339,7 @@ public class Reportes {
             );
         }
     }
+
     
     public void generarReporteErrores(ErrorLexico[] errores) {
 
