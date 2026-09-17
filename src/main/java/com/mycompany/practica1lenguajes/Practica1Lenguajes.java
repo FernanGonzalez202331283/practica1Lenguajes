@@ -4,6 +4,7 @@
 package com.mycompany.practica1lenguajes;
 
 import Analizador.AnalizadorLexico;
+import Interfaz.Vista;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -18,6 +19,14 @@ import modelos.Reportes;
 public class Practica1Lenguajes {
 
     public static void main(String[] args) {
+        
+         java.awt.EventQueue.invokeLater(() -> {
+
+            Vista ventana = new Vista();
+
+            ventana.setVisible(true);
+        });
+       /*
         Scanner scanner = new Scanner(System.in);
 
         int opcion = 0;
@@ -163,5 +172,6 @@ public class Practica1Lenguajes {
         } while (opcion != 2);
 
         scanner.close();
-    }
+*/    
+}
 }

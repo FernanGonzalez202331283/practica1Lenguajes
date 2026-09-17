@@ -357,3 +357,13 @@ CREATE TABLE costo_viaje (
     CHECK (combustible >= 0),
     CHECK (depreciacion >= 0)
 );
+
+CREATE TABLE ruta_privada (
+    codigo_ruta_privada VARCHAR(20) PRIMARY KEY,
+    origen VARCHAR(250) NOT NULL,
+    destino VARCHAR(250) NOT NULL,
+    distancia_km DECIMAL(10,2) NOT NULL,
+    estado BOOLEAN NOT NULL DEFAULT TRUE,
+    UNIQUE (origen, destino),
+    CHECK (distancia_km > 0)
+);

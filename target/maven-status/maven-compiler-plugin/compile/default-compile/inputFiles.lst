@@ -1,5 +1,7 @@
 /home/fernan/NetBeansProjects/Practica1Lenguajes/src/main/java/Analizador/AnalizadorLexico.java
+/home/fernan/NetBeansProjects/Practica1Lenguajes/src/main/java/Interfaz/Vista.java
 /home/fernan/NetBeansProjects/Practica1Lenguajes/src/main/java/com/mycompany/practica1lenguajes/Practica1Lenguajes.java
+/home/fernan/NetBeansProjects/Practica1Lenguajes/src/main/java/graficos/GeneradorAFD.java
 /home/fernan/NetBeansProjects/Practica1Lenguajes/src/main/java/modelos/ErrorLexico.java
 /home/fernan/NetBeansProjects/Practica1Lenguajes/src/main/java/modelos/Reportes.java
 /home/fernan/NetBeansProjects/Practica1Lenguajes/src/main/java/modelos/TipoToken.java
