@@ -31,9 +31,10 @@ import javax.swing.text.Highlighter;
  * @author fernan
  */
 public class Vista extends javax.swing.JFrame {
-    
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Vista.class.getName());
     private File archivoActual = null;
+
     /**
      * Creates new form Vista
      */
@@ -41,7 +42,7 @@ public class Vista extends javax.swing.JFrame {
         initComponents();
         configurarTablaTokens();
         configurarTablaErrores();
-        
+
     }
 
     /**
@@ -65,6 +66,7 @@ public class Vista extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         btnAnalizar = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu3 = new javax.swing.JMenu();
         MenuNuevo = new javax.swing.JMenuItem();
@@ -86,12 +88,17 @@ public class Vista extends javax.swing.JFrame {
 
         txtEditor.setColumns(20);
         txtEditor.setRows(5);
+        txtEditor.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jScrollPane1.setViewportView(txtEditor);
 
         panelPrincipal.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(118, 70, 1408, 253));
 
+        jLabel1.setFont(new java.awt.Font("Ubuntu Sans Mono", 3, 24)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Codigo PromptZal");
         panelPrincipal.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(133, 34, -1, -1));
+
+        jScrollPane2.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
         tablaTokens.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -116,6 +123,8 @@ public class Vista extends javax.swing.JFrame {
 
         panelPrincipal.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(118, 448, 684, 254));
 
+        jScrollPane3.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
         tablaErrores.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -139,15 +148,20 @@ public class Vista extends javax.swing.JFrame {
 
         panelPrincipal.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(906, 448, 633, 254));
 
+        jLabel2.setFont(new java.awt.Font("Ubuntu Sans Mono", 3, 24)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Tokens");
         panelPrincipal.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(152, 412, -1, -1));
 
+        jLabel3.setFont(new java.awt.Font("Ubuntu Sans Mono", 3, 24)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("Errores");
         panelPrincipal.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(930, 410, -1, -1));
 
-        btnAnalizar.setBackground(new java.awt.Color(255, 204, 102));
+        btnAnalizar.setBackground(new java.awt.Color(255, 204, 51));
         btnAnalizar.setForeground(new java.awt.Color(0, 0, 0));
         btnAnalizar.setText("Analizar");
+        btnAnalizar.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         btnAnalizar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnAnalizarActionPerformed(evt);
@@ -156,10 +170,14 @@ public class Vista extends javax.swing.JFrame {
         panelPrincipal.add(btnAnalizar, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 780, 140, 60));
 
         jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Captura desde 2026-09-04 23-17-40.png"))); // NOI18N
-        panelPrincipal.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, -20, 1680, 1010));
+        panelPrincipal.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, -20, 1680, 990));
 
         getContentPane().add(panelPrincipal, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 1580, 1000));
 
+        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagen pegada.png"))); // NOI18N
+        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(1650, 30, 310, 950));
+
+        jMenu3.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jMenu3.setText("Archivo");
 
         MenuNuevo.setText("Nuevo");
@@ -188,6 +206,7 @@ public class Vista extends javax.swing.JFrame {
 
         jMenuBar1.add(jMenu3);
 
+        jMenu5.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jMenu5.setText("Reportes");
 
         ReporteDeTokens.setText("Reporte de Tokens");
@@ -216,6 +235,7 @@ public class Vista extends javax.swing.JFrame {
 
         jMenuBar1.add(jMenu5);
 
+        jMenu6.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jMenu6.setText("Automata");
 
         GeneradorDeAFD.setText("Generar AFD");
@@ -228,6 +248,7 @@ public class Vista extends javax.swing.JFrame {
 
         jMenuBar1.add(jMenu6);
 
+        jMenu1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jMenu1.setText("Salir");
         jMenu1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -243,104 +264,131 @@ public class Vista extends javax.swing.JFrame {
 
     private void MenuNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuNuevoActionPerformed
         // TODO add your handling code here:
+        txtEditor.setText("");
+        DefaultTableModel modeloTokens
+                = (DefaultTableModel) tablaTokens.getModel();
+        modeloTokens.setRowCount(0);
+        DefaultTableModel modeloErrores
+                = (DefaultTableModel) tablaErrores.getModel();
+        modeloErrores.setRowCount(0);
+        // Quitar resaltados del editor
+        txtEditor.getHighlighter().removeAllHighlights();
+        // Ya no hay archivo asociado
+        archivoActual = null;
     }//GEN-LAST:event_MenuNuevoActionPerformed
 
     private void btnAnalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnalizarActionPerformed
         // Obtener el código escrito en el editor
-            String entrada = txtEditor.getText();
+        String entrada = txtEditor.getText();
 
-            // Crear el analizador léxico
-            AnalizadorLexico analizador = new AnalizadorLexico(entrada);
+        // Crear el analizador léxico
+        AnalizadorLexico analizador = new AnalizadorLexico(entrada);
 
-            // Ejecutar el análisis
-            analizador.analizar();
+        // Ejecutar el análisis
+        analizador.analizar();
 
-            // Obtener tokens y errores
-            Token[] tokens = analizador.getTokens();
-            ErrorLexico[] errores = analizador.getErrores();
+        // Obtener tokens y errores
+        Token[] tokens = analizador.getTokens();
+        ErrorLexico[] errores = analizador.getErrores();
 
-            // Obtener los modelos de las tablas
-            DefaultTableModel modeloTokens =
-                    (DefaultTableModel) tablaTokens.getModel();
+        // Obtener los modelos de las tablas
+        DefaultTableModel modeloTokens
+                = (DefaultTableModel) tablaTokens.getModel();
 
-            DefaultTableModel modeloErrores =
-                    (DefaultTableModel) tablaErrores.getModel();
-  
-            // Limpiar resultados anteriores
-            modeloTokens.setRowCount(0);
-            modeloErrores.setRowCount(0);
-                      
-            // Quitar resaltados anteriores del editor
-            txtEditor.getHighlighter().removeAllHighlights();
+        DefaultTableModel modeloErrores
+                = (DefaultTableModel) tablaErrores.getModel();
 
-            // Mostrar tokens
-            for (Token token : tokens) {
+        // Limpiar resultados anteriores
+        modeloTokens.setRowCount(0);
+        modeloErrores.setRowCount(0);
 
-                modeloTokens.addRow(new Object[]{
-                    token.getNumero(),
-                    token.getLexema(),
-                    token.getTipo(),
-                    token.getFila(),
-                    token.getColumna()
-                });
-            }
+        // Quitar resaltados anteriores del editor
+        txtEditor.getHighlighter().removeAllHighlights();
 
-            // Mostrar errores
-            for (ErrorLexico error : errores) {
+        // Mostrar tokens
+        for (Token token : tokens) {
 
-                modeloErrores.addRow(new Object[]{
-                    error.getLexema(),
-                    error.getTipoError(),
-                    error.getFila(),
-                    error.getColumna()
-                });
-            }
-            marcarLineasConErrores(errores);
+            modeloTokens.addRow(new Object[]{
+                token.getNumero(),
+                token.getLexema(),
+                token.getTipo(),
+                token.getFila(),
+                token.getColumna()
+            });
+        }
 
-            // Mostrar mensaje del resultado
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Análisis terminado.\n"
-                    + "Tokens encontrados: " + tokens.length + "\n"
-                    + "Errores encontrados: " + errores.length,
-                    "Análisis léxico",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+        // Mostrar errores
+        for (ErrorLexico error : errores) {
+
+            modeloErrores.addRow(new Object[]{
+                error.getLexema(),
+                error.getTipoError(),
+                error.getFila(),
+                error.getColumna()
+            });
+        }
+        marcarLineasConErrores(errores);
+
+        // Mostrar mensaje del resultado
+        JOptionPane.showMessageDialog(
+                this,
+                "Análisis terminado.\n"
+                + "Tokens encontrados: " + tokens.length + "\n"
+                + "Errores encontrados: " + errores.length,
+                "Análisis léxico",
+                JOptionPane.INFORMATION_MESSAGE
+        );
     }//GEN-LAST:event_btnAnalizarActionPerformed
 
     private void ReporteDeTokensActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ReporteDeTokensActionPerformed
         // TODO add your handling code here:
-        
-    // Obtener el código actual del editor
-    String entrada = txtEditor.getText();
+        String entrada = txtEditor.getText();
 
-    // Crear el analizador léxico
-    AnalizadorLexico analizador = new AnalizadorLexico(entrada);
+        AnalizadorLexico analizador = new AnalizadorLexico(entrada);
+        analizador.analizar();
 
-    // Analizar el código
-    analizador.analizar();
+        Token[] tokens = analizador.getTokens();
 
-    // Obtener los tokens
-    Token[] tokens = analizador.getTokens();
+        JFileChooser selector = new JFileChooser();
 
-    // Crear objeto de reportes
-    Reportes reportes = new Reportes();
+        selector.setDialogTitle("Guardar reporte de tokens");
 
-    // Generar reporte HTML
-    reportes.generarReporteTokens(tokens);
+        selector.setSelectedFile(
+                new File("reporte_tokens.html")
+        );
 
-    // Avisar al usuario
-    JOptionPane.showMessageDialog(
-            this,
-            "Reporte de tokens generado correctamente.\n"
-            + "Archivo: reporte_tokens.html",
-            "Reporte de Tokens",
-            JOptionPane.INFORMATION_MESSAGE
-    );
+        int resultado = selector.showSaveDialog(this);
+
+        if (resultado == JFileChooser.APPROVE_OPTION) {
+
+            File archivo = selector.getSelectedFile();
+
+            String ruta = archivo.getAbsolutePath();
+
+            if (!ruta.toLowerCase().endsWith(".html")) {
+                ruta = ruta + ".html";
+            }
+
+            Reportes reportes = new Reportes();
+
+            reportes.generarReporteTokens(
+                    tokens,
+                    ruta
+            );
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Reporte de tokens generado correctamente.\n"
+                    + "Archivo: " + ruta,
+                    "Reporte de Tokens",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        }
     }//GEN-LAST:event_ReporteDeTokensActionPerformed
 
     private void ReporteDeErroresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ReporteDeErroresActionPerformed
         // TODO add your handling code here:
+        
         String entrada = txtEditor.getText();
 
         AnalizadorLexico analizador = new AnalizadorLexico(entrada);
@@ -348,19 +396,45 @@ public class Vista extends javax.swing.JFrame {
 
         ErrorLexico[] errores = analizador.getErrores();
 
-        Reportes reportes = new Reportes();
-        reportes.generarReporteErrores(errores);
+        JFileChooser selector = new JFileChooser();
 
-        JOptionPane.showMessageDialog(
-                this,
-                "Reporte de errores generado correctamente.\n"
-                + "Archivo: reporte_errores.html",
-                "Reporte de Errores",
-                JOptionPane.INFORMATION_MESSAGE
+        selector.setDialogTitle("Guardar reporte de errores");
+
+        selector.setSelectedFile(
+                new File("reporte_errores.html")
         );
+
+        int resultado = selector.showSaveDialog(this);
+
+        if (resultado == JFileChooser.APPROVE_OPTION) {
+
+            File archivo = selector.getSelectedFile();
+
+            String ruta = archivo.getAbsolutePath();
+
+            if (!ruta.toLowerCase().endsWith(".html")) {
+                ruta = ruta + ".html";
+            }
+
+            Reportes reportes = new Reportes();
+
+            reportes.generarReporteErrores(
+                    errores,
+                    ruta
+            );
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Reporte de errores generado correctamente.\n"
+                    + "Archivo: " + ruta,
+                    "Reporte de Errores",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        }
     }//GEN-LAST:event_ReporteDeErroresActionPerformed
 
     private void ReporteDeEstadisticasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ReporteDeEstadisticasActionPerformed
+        
         String entrada = txtEditor.getText();
 
         AnalizadorLexico analizador = new AnalizadorLexico(entrada);
@@ -369,157 +443,139 @@ public class Vista extends javax.swing.JFrame {
         Token[] tokens = analizador.getTokens();
         ErrorLexico[] errores = analizador.getErrores();
 
-        Reportes reportes = new Reportes();
-        reportes.generarReporteEstadisticas(tokens, errores);
+        JFileChooser selector = new JFileChooser();
 
-        JOptionPane.showMessageDialog(
-                this,
-                "Reporte de estadísticas generado correctamente.\n"
-                + "Archivo: reporte_estadisticas.html",
-                "Reporte de Estadísticas",
-                JOptionPane.INFORMATION_MESSAGE
+        selector.setDialogTitle("Guardar reporte de estadísticas");
+
+        selector.setSelectedFile(
+                new File("reporte_estadisticas.html")
         );
 
+        int resultado = selector.showSaveDialog(this);
+
+        if (resultado == JFileChooser.APPROVE_OPTION) {
+
+            File archivo = selector.getSelectedFile();
+
+            String ruta = archivo.getAbsolutePath();
+
+            if (!ruta.toLowerCase().endsWith(".html")) {
+                ruta = ruta + ".html";
+            }
+
+            Reportes reportes = new Reportes();
+
+            reportes.generarReporteEstadisticas(
+                    tokens,
+                    errores,
+                    analizador.getFilaActual(),
+                    ruta
+            );
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Reporte de estadísticas generado correctamente.\n"
+                    + "Archivo: " + ruta,
+                    "Reporte de Estadísticas",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        }
     }//GEN-LAST:event_ReporteDeEstadisticasActionPerformed
 
     private void GeneradorDeAFDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GeneradorDeAFDActionPerformed
-        // TODO add your handling code here:
-        
-        // Rutas de salida (ajusta la carpeta si quieres otra ubicación)
-    String rutaDot = "salida/afd_promptzal.dot";
-    String rutaImagen = "salida/afd_promptzal.png";
+        // TODO add your handling code here: 
+        String rutaDot = "salida/afd_promptzal.dot";
+        String rutaImagen = "salida/afd_promptzal.png";
 
-    GeneradorAFD.ResultadoRender resultado = GeneradorAFD.generarImagen(rutaDot, rutaImagen);
+        GeneradorAFD.ResultadoRender resultado =
+                GeneradorAFD.generarImagen(rutaDot, rutaImagen);
 
-    if (resultado.exito) {
-        // Mostrar la imagen en una ventana emergente
-        javax.swing.ImageIcon icono = new javax.swing.ImageIcon(resultado.rutaImagen);
-        javax.swing.JLabel label = new javax.swing.JLabel(icono);
-        javax.swing.JScrollPane scroll = new javax.swing.JScrollPane(label);
-        scroll.setPreferredSize(new java.awt.Dimension(800, 600));
+        if (resultado.exito) {
 
-        javax.swing.JDialog dialogo = new javax.swing.JDialog(this, "AFD de PromptZal", true);
-        dialogo.getContentPane().add(scroll);
-        dialogo.pack();
-        dialogo.setLocationRelativeTo(this);
-        dialogo.setVisible(true);
-    } else {
-        javax.swing.JOptionPane.showMessageDialog(this,
-                resultado.mensajeError,
-                "Error al generar el AFD",
-                javax.swing.JOptionPane.ERROR_MESSAGE);
-    }
+            javax.swing.ImageIcon icono =
+                    new javax.swing.ImageIcon(resultado.rutaImagen);
+
+            javax.swing.JLabel label =
+                    new javax.swing.JLabel(icono);
+
+            javax.swing.JScrollPane scroll =
+                    new javax.swing.JScrollPane(label);
+
+            scroll.setPreferredSize(
+                    new java.awt.Dimension(800, 600)
+            );
+
+            javax.swing.JDialog dialogo =
+                    new javax.swing.JDialog(this, "AFD de PromptZal", true);
+
+            dialogo.getContentPane().add(scroll);
+
+            dialogo.pack();
+            dialogo.setLocationRelativeTo(this);
+            dialogo.setVisible(true);
+
+        } else {
+
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,
+                    resultado.mensajeError,
+                    "Error al generar el AFD",
+                    javax.swing.JOptionPane.ERROR_MESSAGE
+            );
+        }
     }//GEN-LAST:event_GeneradorDeAFDActionPerformed
 
     private void MenuGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuGuardarActionPerformed
         // TODO add your handling code here:
-         
-    if (archivoActual == null) {
 
-        JFileChooser selector = new JFileChooser();
-        selector.setDialogTitle("Guardar archivo PromptZal");
+        if (archivoActual == null) {
 
-        FileNameExtensionFilter filtro =
-                new FileNameExtensionFilter(
-                        "Archivos PromptZal (*.pz)",
-                        "pz"
+            JFileChooser selector = new JFileChooser();
+            selector.setDialogTitle("Guardar archivo PromptZal");
+
+            FileNameExtensionFilter filtro
+                    = new FileNameExtensionFilter(
+                            "Archivos PromptZal (*.pz)",
+                            "pz"
+                    );
+
+            selector.setFileFilter(filtro);
+
+            int resultado = selector.showSaveDialog(this);
+
+            if (resultado != JFileChooser.APPROVE_OPTION) {
+                return;
+            }
+
+            archivoActual = selector.getSelectedFile();
+
+            String nombre = archivoActual.getName();
+
+            if (!nombre.toLowerCase().endsWith(".pz")) {
+
+                archivoActual = new File(
+                        archivoActual.getParentFile(),
+                        nombre + ".pz"
                 );
-
-        selector.setFileFilter(filtro);
-
-        int resultado = selector.showSaveDialog(this);
-
-        if (resultado != JFileChooser.APPROVE_OPTION) {
-            return;
+            }
         }
-
-        archivoActual = selector.getSelectedFile();
-
-        String nombre = archivoActual.getName();
-
-        if (!nombre.toLowerCase().endsWith(".pz")) {
-
-            archivoActual = new File(
-                    archivoActual.getParentFile(),
-                    nombre + ".pz"
-            );
-        }
-    }
-
-    try {
-
-        BufferedWriter escritor =
-                new BufferedWriter(
-                        new FileWriter(archivoActual)
-                );
-
-        escritor.write(txtEditor.getText());
-
-        escritor.close();
-
-        JOptionPane.showMessageDialog(
-                this,
-                "Archivo guardado correctamente:\n"
-                + archivoActual.getName(),
-                "Guardar",
-                JOptionPane.INFORMATION_MESSAGE
-        );
-
-    } catch (IOException e) {
-
-        JOptionPane.showMessageDialog(
-                this,
-                "No se pudo guardar el archivo.",
-                "Error",
-                JOptionPane.ERROR_MESSAGE
-        );
-    }
-    }//GEN-LAST:event_MenuGuardarActionPerformed
-
-    private void MenuAbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuAbrirActionPerformed
-       
-    JFileChooser selector = new JFileChooser();
-    selector.setDialogTitle("Abrir archivo PromptZal");
-
-    FileNameExtensionFilter filtro =
-            new FileNameExtensionFilter(
-                    "Archivos PromptZal (*.pz)",
-                    "pz"
-            );
-
-    selector.setFileFilter(filtro);
-
-    int resultado = selector.showOpenDialog(this);
-
-    if (resultado == JFileChooser.APPROVE_OPTION) {
-
-        File archivo = selector.getSelectedFile();
 
         try {
 
-            BufferedReader lector =
-                    new BufferedReader(new FileReader(archivo));
+            BufferedWriter escritor
+                    = new BufferedWriter(
+                            new FileWriter(archivoActual)
+                    );
 
-            StringBuilder contenido = new StringBuilder();
+            escritor.write(txtEditor.getText());
 
-            String linea;
-
-            while ((linea = lector.readLine()) != null) {
-                contenido.append(linea);
-                contenido.append("\n");
-            }
-
-            lector.close();
-
-            txtEditor.setText(contenido.toString());
-
-            // Guardamos el archivo que está abierto
-            archivoActual = archivo;
+            escritor.close();
 
             JOptionPane.showMessageDialog(
                     this,
-                    "Archivo abierto correctamente.",
-                    "Abrir",
+                    "Archivo guardado correctamente:\n"
+                    + archivoActual.getName(),
+                    "Guardar",
                     JOptionPane.INFORMATION_MESSAGE
             );
 
@@ -527,12 +583,77 @@ public class Vista extends javax.swing.JFrame {
 
             JOptionPane.showMessageDialog(
                     this,
-                    "No se pudo abrir el archivo.",
+                    "No se pudo guardar el archivo.",
                     "Error",
                     JOptionPane.ERROR_MESSAGE
             );
         }
-    }
+    }//GEN-LAST:event_MenuGuardarActionPerformed
+
+    private void MenuAbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuAbrirActionPerformed
+
+        JFileChooser selector = new JFileChooser();
+        selector.setDialogTitle("Abrir archivo PromptZal");
+
+        FileNameExtensionFilter filtro
+                = new FileNameExtensionFilter(
+                        "Archivos PromptZal (*.pz)",
+                        "pz"
+                );
+
+        selector.setFileFilter(filtro);
+
+        int resultado = selector.showOpenDialog(this);
+
+        if (resultado == JFileChooser.APPROVE_OPTION) {
+
+            File archivo = selector.getSelectedFile();
+
+            try {
+
+                BufferedReader lector
+                        = new BufferedReader(new FileReader(archivo));
+
+                StringBuilder contenido = new StringBuilder();
+
+                String linea;
+
+                while ((linea = lector.readLine()) != null) {
+                    contenido.append(linea);
+                    contenido.append("\n");
+                }
+
+                lector.close();
+
+                txtEditor.setText(contenido.toString());
+                DefaultTableModel modeloTokens =
+                        (DefaultTableModel) tablaTokens.getModel();
+                modeloTokens.setRowCount(0);
+                DefaultTableModel modeloErrores =
+                        (DefaultTableModel) tablaErrores.getModel();
+                modeloErrores.setRowCount(0);
+                txtEditor.getHighlighter().removeAllHighlights();
+
+                // Guardamos el archivo que está abierto
+                archivoActual = archivo;
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Archivo abierto correctamente.",
+                        "Abrir",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+
+            } catch (IOException e) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "No se pudo abrir el archivo.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+        }
     }//GEN-LAST:event_MenuAbrirActionPerformed
 
     private void jMenu1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu1MouseClicked
@@ -553,6 +674,7 @@ public class Vista extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu5;
@@ -568,101 +690,102 @@ public class Vista extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
    private void configurarTablaTokens() {
 
-    tablaTokens.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+        tablaTokens.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
 
-        @Override
-        public Component getTableCellRendererComponent(
-                JTable table,
-                Object value,
-                boolean isSelected,
-                boolean hasFocus,
-                int row,
-                int column) {
+            @Override
+            public Component getTableCellRendererComponent(
+                    JTable table,
+                    Object value,
+                    boolean isSelected,
+                    boolean hasFocus,
+                    int row,
+                    int column) {
 
-            Component componente =
-                    super.getTableCellRendererComponent(
-                            table,
-                            value,
-                            isSelected,
-                            hasFocus,
-                            row,
-                            column
-                    );
+                Component componente
+                        = super.getTableCellRendererComponent(
+                                table,
+                                value,
+                                isSelected,
+                                hasFocus,
+                                row,
+                                column
+                        );
 
-            if (!isSelected) {
-                componente.setBackground(new Color(220, 255, 220));
-                componente.setForeground(Color.BLACK);
+                if (!isSelected) {
+                    componente.setBackground(new Color(220, 255, 220));
+                    componente.setForeground(Color.BLACK);
+                }
+
+                return componente;
             }
+        });
+    }
 
-            return componente;
-        }
-    });
-}
-    
     private void configurarTablaErrores() {
 
-    tablaErrores.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+        tablaErrores.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
 
-        @Override
-        public Component getTableCellRendererComponent(
-                JTable table,
-                Object value,
-                boolean isSelected,
-                boolean hasFocus,
-                int row,
-                int column) {
+            @Override
+            public Component getTableCellRendererComponent(
+                    JTable table,
+                    Object value,
+                    boolean isSelected,
+                    boolean hasFocus,
+                    int row,
+                    int column) {
 
-            Component componente =
-                    super.getTableCellRendererComponent(
-                            table,
-                            value,
-                            isSelected,
-                            hasFocus,
-                            row,
-                            column
-                    );
+                Component componente
+                        = super.getTableCellRendererComponent(
+                                table,
+                                value,
+                                isSelected,
+                                hasFocus,
+                                row,
+                                column
+                        );
 
-            if (!isSelected) {
-                componente.setBackground(new Color(255, 220, 220));
-                componente.setForeground(Color.BLACK);
+                if (!isSelected) {
+                    componente.setBackground(new Color(255, 220, 220));
+                    componente.setForeground(Color.BLACK);
+                }
+
+                return componente;
             }
+        });
+    }
 
-            return componente;
-        }
-    });
-}
     private void marcarLineasConErrores(ErrorLexico[] errores) {
 
-    Highlighter highlighter = txtEditor.getHighlighter();
+        Highlighter highlighter = txtEditor.getHighlighter();
 
-    // Quitar resaltados anteriores
-    highlighter.removeAllHighlights();
+        // Quitar resaltados anteriores
+        highlighter.removeAllHighlights();
 
-    // Recorrer todos los errores
-    for (ErrorLexico error : errores) {
+        // Recorrer todos los errores
+        for (ErrorLexico error : errores) {
 
-        try {
+            try {
 
-            int linea = error.getFila() - 1;
+                int linea = error.getFila() - 1;
 
-            int inicio = txtEditor.getLineStartOffset(linea);
-            int fin = txtEditor.getLineEndOffset(linea);
+                int inicio = txtEditor.getLineStartOffset(linea);
+                int fin = txtEditor.getLineEndOffset(linea);
 
-            highlighter.addHighlight(
-                    inicio,
-                    fin,
-                    new DefaultHighlighter.DefaultHighlightPainter(
-                            new Color(255, 220, 220)
-                    )
-            );
+                highlighter.addHighlight(
+                        inicio,
+                        fin,
+                        new DefaultHighlighter.DefaultHighlightPainter(
+                                new Color(255, 220, 220)
+                        )
+                );
 
-        } catch (Exception e) {
+            } catch (Exception e) {
 
-            System.out.println(
-                    "No se pudo marcar la línea "
-                    + error.getFila()
-            );
+                System.out.println(
+                        "No se pudo marcar la línea "
+                        + error.getFila()
+                );
+            }
         }
     }
-}
 }

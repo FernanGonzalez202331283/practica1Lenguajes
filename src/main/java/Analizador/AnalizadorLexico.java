@@ -19,12 +19,14 @@ public class AnalizadorLexico {
     private int fila;
     private int columna;
     private int numeroToken;
-    
+
     private Token[] tokens;
     private ErrorLexico[] errores;
-    private boolean cadenaCerrada;
+
     private int cantidadTokens;
     private int cantidadErrores;
+
+    private boolean cadenaCerrada;
 
     public AnalizadorLexico(String entrada) {
         this.entrada = entrada;
@@ -35,9 +37,249 @@ public class AnalizadorLexico {
 
         this.tokens = new Token[10];
         this.errores = new ErrorLexico[10];
-        
+
         this.cantidadTokens = 0;
         this.cantidadErrores = 0;
+
+        this.cadenaCerrada = false;
+    }
+
+    public void analizar() {
+
+        while (hayCaracteres()) {
+
+            if (esEspacio(caracterActual())) {
+                avanzar();
+                continue;
+            }
+
+            // Comentario de línea
+            if (esComentarioLinea()) {
+                ignorarComentarioLinea();
+                continue;
+            }
+
+            // Comentario de bloque
+            if (esComentarioBloque()) {
+                ignorarComentarioBloque();
+                continue;
+            }
+
+            // Directivas
+            if (caracterActual() == '@') {
+
+                int filaInicial = fila;
+                int columnaInicial = columna;
+
+                String lexema = leerDirectiva();
+
+                if (esDirectiva(lexema)) {
+
+                    agregarToken(
+                            lexema,
+                            TipoToken.DIRECTIVA,
+                            filaInicial,
+                            columnaInicial
+                    );
+
+                } else {
+
+                    agregarError(
+                            lexema,
+                            "Directiva no reconocida",
+                            filaInicial,
+                            columnaInicial
+                    );
+                }
+
+                continue;
+            }
+
+            // Números
+            if (esDigito(caracterActual())) {
+
+                int filaInicial = fila;
+                int columnaInicial = columna;
+
+                String lexema = leerNumero();
+
+                if (lexema.endsWith(".")) {
+
+                    agregarError(
+                            lexema,
+                            "Número decimal incompleto",
+                            filaInicial,
+                            columnaInicial
+                    );
+
+                } else {
+
+                    TipoToken tipo = clasificarNumero(lexema);
+
+                    agregarToken(
+                            lexema,
+                            tipo,
+                            filaInicial,
+                            columnaInicial
+                    );
+                }
+
+                continue;
+            }
+
+            // Cadenas
+            if (caracterActual() == '"') {
+
+                int filaInicial = fila;
+                int columnaInicial = columna;
+
+                String lexema = leerCadena();
+
+                if (cadenaCerrada) {
+
+                    agregarToken(
+                            lexema,
+                            TipoToken.LITERAL_CADENA,
+                            filaInicial,
+                            columnaInicial
+                    );
+
+                } else {
+
+                    agregarError(
+                            lexema,
+                            "Cadena sin cerrar",
+                            filaInicial,
+                            columnaInicial
+                    );
+                }
+
+                continue;
+            }
+
+            // Operador de asignación
+            if (caracterActual() == '=') {
+
+                int filaInicial = fila;
+                int columnaInicial = columna;
+
+                avanzar();
+
+                agregarToken(
+                        "=",
+                        TipoToken.OPERADOR_ASIGNACION,
+                        filaInicial,
+                        columnaInicial
+                );
+
+                continue;
+            }
+
+            // Conector ->
+            if (caracterActual() == '-') {
+
+                int filaInicial = fila;
+                int columnaInicial = columna;
+
+                if (posicion + 1 < entrada.length()
+                        && entrada.charAt(posicion + 1) == '>') {
+
+                    avanzar();
+                    avanzar();
+
+                    agregarToken(
+                            "->",
+                            TipoToken.CONECTOR,
+                            filaInicial,
+                            columnaInicial
+                    );
+
+                } else {
+
+                    agregarError(
+                            String.valueOf(caracterActual()),
+                            "Carácter no reconocido",
+                            filaInicial,
+                            columnaInicial
+                    );
+
+                    avanzar();
+                }
+
+                continue;
+            }
+
+            // Operador de concatenación
+            if (caracterActual() == '+') {
+
+                int filaInicial = fila;
+                int columnaInicial = columna;
+
+                avanzar();
+
+                agregarToken(
+                        "+",
+                        TipoToken.OPERADOR_CONCATENACION,
+                        filaInicial,
+                        columnaInicial
+                );
+
+                continue;
+            }
+
+            // Delimitadores
+            if (esDelimitador(caracterActual())) {
+
+                int filaInicial = fila;
+                int columnaInicial = columna;
+
+                String lexema = String.valueOf(caracterActual());
+
+                avanzar();
+
+                agregarToken(
+                        lexema,
+                        TipoToken.DELIMITADOR,
+                        filaInicial,
+                        columnaInicial
+                );
+
+                continue;
+            }
+
+            if (esLetra(caracterActual())) {
+
+                int filaInicial = fila;
+                int columnaInicial = columna;
+
+                String lexema = leerIdentificador();
+
+                TipoToken tipo = clasificarPalabra(lexema);
+
+                agregarToken(
+                        lexema,
+                        tipo,
+                        filaInicial,
+                        columnaInicial
+                );
+
+                continue;
+            }
+
+            int filaInicial = fila;
+            int columnaInicial = columna;
+
+            String lexema = String.valueOf(caracterActual());
+
+            agregarError(
+                    lexema,
+                    "Carácter no reconocido",
+                    filaInicial,
+                    columnaInicial
+            );
+
+            avanzar();
+        }
     }
 
     private boolean hayCaracteres() {
@@ -48,310 +290,8 @@ public class AnalizadorLexico {
         return entrada.charAt(posicion);
     }
 
-    public void analizar() {
-        while (hayCaracteres()) {
-            char actual = caracterActual();
-
-            if (esEspacio(actual)) {
-                avanzar();
-                continue;
-            }
-            
-            if (esComentarioLinea()) {
-
-                ignorarComentarioLinea();
-                continue;
-            }
-            if (esComentarioBloque()) {
-
-                ignorarComentarioBloque();
-                continue;
-            }
-            
-            if (actual == '@') {
-
-                int filaInicial = fila;
-                int columnaInicial = columna;
-
-                String lexema = leerDirectiva();
-
-                if (esDirectiva(lexema)) {
-
-                    Token token = new Token(
-                            numeroToken,
-                            lexema,
-                            TipoToken.DIRECTIVA,
-                            filaInicial,
-                            columnaInicial
-                    );
-
-                    agregarToken(token);
-
-                    numeroToken++;
-
-                } else {
-
-                    ErrorLexico error = new ErrorLexico(
-                            lexema,
-                            "Directiva no reconocida",
-                            filaInicial,
-                            columnaInicial
-                    );
-
-                    agregarError(error);
-                }
-
-                continue;
-            }
-            
-            if (esDigito(actual)) {
-
-                int filaInicial = fila;
-                int columnaInicial = columna;
-
-                String lexema = leerNumero();
-
-                TipoToken tipo = clasificarNumero(lexema);
-
-                Token token = new Token(
-                        numeroToken,
-                        lexema,
-                        tipo,
-                        filaInicial,
-                        columnaInicial
-                );
-
-                agregarToken(token);
-
-                numeroToken++;
-
-                continue;
-            }
-            
-            if (actual == '"') {
-                int filaInicial = fila;
-                int columnaInicial = columna;
-
-                String lexema = leerCadena();
-
-                if (cadenaCerrada) {
-
-                    Token token = new Token(
-                            numeroToken,
-                            lexema,
-                            TipoToken.LITERAL_CADENA,
-                            filaInicial,
-                            columnaInicial
-                    );
-
-                    agregarToken(token);
-
-                    numeroToken++;
-
-                } else {
-
-                    ErrorLexico error = new ErrorLexico(
-                            lexema,
-                            "Cadena sin cerrar",
-                            filaInicial,
-                            columnaInicial
-                    );
-
-                    agregarError(error);
-                }
-
-                continue;
-            }
-            
-            if (actual == '=') {
-
-                int filaInicial = fila;
-                int columnaInicial = columna;
-
-                avanzar();
-
-                Token token = new Token(
-                        numeroToken,
-                        "=",
-                        TipoToken.OPERADOR_ASIGNACION,
-                        filaInicial,
-                        columnaInicial
-                );
-
-                agregarToken(token);
-
-                numeroToken++;
-
-                continue;
-            }
-            
-            if (actual == '-') {
-
-                int filaInicial = fila;
-                int columnaInicial = columna;
-
-                avanzar();
-
-                if (hayCaracteres() && caracterActual() == '>') {
-
-                    avanzar();
-
-                    Token token = new Token(
-                            numeroToken,
-                            "->",
-                            TipoToken.CONECTOR,
-                            filaInicial,
-                            columnaInicial
-                    );
-
-                    agregarToken(token);
-
-                    numeroToken++;
-
-                } else {
-
-                    ErrorLexico error = new ErrorLexico(
-                            "-",
-                            "Operador o conector no reconocido",
-                            filaInicial,
-                            columnaInicial
-                    );
-
-                    agregarError(error);
-                }
-
-                continue;
-            }
-            if (actual == '+') {
-
-                int filaInicial = fila;
-                int columnaInicial = columna;
-
-                avanzar();
-
-                Token token = new Token(
-                        numeroToken,
-                        "+",
-                        TipoToken.OPERADOR_CONCATENACION,
-                        filaInicial,
-                        columnaInicial
-                );
-
-                agregarToken(token);
-
-                numeroToken++;
-
-                continue;
-            }
-            
-            if (esDelimitador(actual)) {
-
-                int filaInicial = fila;
-                int columnaInicial = columna;
-
-                String lexema = leerDelimitador();
-
-                Token token = new Token(
-                        numeroToken,
-                        lexema,
-                        TipoToken.DELIMITADOR,
-                        filaInicial,
-                        columnaInicial
-                );
-
-                agregarToken(token);
-
-                numeroToken++;
-
-                continue;
-            }
-            
-            if (esLetra(actual)) {
-                int filaInicial = fila;
-                int columnaInicial = columna;
-
-                String lexema = leerIdentificador();
-
-                TipoToken tipo = clasificarPalabra(lexema);
-
-                Token token = new Token(
-                        numeroToken,
-                        lexema,
-                        tipo,
-                        filaInicial,
-                        columnaInicial
-                );
-                agregarToken(token);
-
-                numeroToken++;
-
-                continue;
-            }
-            
-             ErrorLexico error = new ErrorLexico(
-                    String.valueOf(actual),
-                    "Carácter no reconocido",
-                    fila,
-                    columna
-            );
-
-            agregarError(error);
-            
-            avanzar();
-        }
-    }
-
-    private void agregarToken(Token token) {
-
-        aumentarEspacioTokens();
-
-        tokens[cantidadTokens] = token;
-        cantidadTokens++;
-    }
-
-    private void agregarError(ErrorLexico error) {
-        aumentarEspacioErrores();
-
-        errores[cantidadErrores] = error;
-        cantidadErrores++;
-    }
-
-    public void mostrarTokens() {
-        for (int i = 0; i < cantidadTokens; i++) {
-            System.out.println(tokens[i]);
-        }
-    }
-    
-    public void mostrarErrores() {
-
-        for (int i = 0; i < cantidadErrores; i++) {
-            System.out.println(errores[i]);
-        }
-    }
-
-    private void aumentarEspacioTokens() {
-        if (cantidadTokens == tokens.length) {
-
-            Token[] nuevoArreglo = new Token[tokens.length * 2];
-
-            for (int i = 0; i < tokens.length; i++) {
-                nuevoArreglo[i] = tokens[i];
-            }
-
-            tokens = nuevoArreglo;
-        }
-    }
-
-    private void aumentarEspacioErrores() {
-        if (cantidadErrores == errores.length) {
-            ErrorLexico[] nuevoArreglo
-                    = new ErrorLexico[errores.length * 2];
-            for (int i = 0; i < errores.length; i++) {
-                nuevoArreglo[i] = errores[i];
-            }
-
-            errores = nuevoArreglo;
-        }
+    private boolean esDigito(char caracter) {
+        return caracter >= '0' && caracter <= '9';
     }
 
     private boolean esLetra(char caracter) {
@@ -360,34 +300,47 @@ public class AnalizadorLexico {
                 || caracter == '_';
     }
 
-    private boolean esDigito(char caracter) {
-        return caracter >= '0' && caracter <= '9';
+    private boolean esLetraDirectiva(char caracter) {
+        return (caracter >= 'A' && caracter <= 'Z')
+                || (caracter >= 'a' && caracter <= 'z');
     }
 
     private boolean esEspacio(char caracter) {
-
         return caracter == ' '
                 || caracter == '\t'
                 || caracter == '\n'
                 || caracter == '\r';
     }
 
-    private void avanzar() {
-        if (caracterActual() == '\n') {
+    private boolean esDelimitador(char caracter) {
+        return caracter == '{'
+                || caracter == '}'
+                || caracter == '('
+                || caracter == ')'
+                || caracter == ','
+                || caracter == ';';
+    }
 
-            posicion++;
+    private void avanzar() {
+
+        if (!hayCaracteres()) {
+            return;
+        }
+
+        if (caracterActual() == '\n') {
             fila++;
             columna = 1;
-
         } else {
-
-            posicion++;
             columna++;
         }
+
+        posicion++;
     }
 
     private String leerIdentificador() {
+
         String lexema = "";
+
         while (hayCaracteres()
                 && (esLetra(caracterActual())
                 || esDigito(caracterActual()))) {
@@ -399,8 +352,107 @@ public class AnalizadorLexico {
         return lexema;
     }
 
+    private String leerDirectiva() {
+
+        String lexema = "";
+        lexema += caracterActual();
+        avanzar();
+
+        if (hayCaracteres() && esLetraDirectiva(caracterActual())) {
+
+            lexema += caracterActual();
+            avanzar();
+
+            while (hayCaracteres()
+                    && (esLetraDirectiva(caracterActual())
+                    || esDigito(caracterActual())
+                    || caracterActual() == '_')) {
+
+                lexema += caracterActual();
+                avanzar();
+            }
+        }
+
+        return lexema;
+    }
+
+    private boolean esDirectiva(String lexema) {
+
+        return lexema.equals("@modelo")
+                || lexema.equals("@rol")
+                || lexema.equals("@formato");
+    }
+
+    private String leerNumero() {
+
+        String lexema = "";
+        while (hayCaracteres()
+                && esDigito(caracterActual())) {
+
+            lexema += caracterActual();
+            avanzar();
+        }
+
+        if (hayCaracteres()
+                && caracterActual() == '.') {
+
+            lexema += caracterActual();
+            avanzar();
+
+            while (hayCaracteres()
+                    && esDigito(caracterActual())) {
+
+                lexema += caracterActual();
+                avanzar();
+            }
+        }
+
+        return lexema;
+    }
+
+    private TipoToken clasificarNumero(String lexema) {
+
+        if (lexema.indexOf('.') >= 0) {
+            return TipoToken.LITERAL_DECIMAL;
+        }
+
+        return TipoToken.LITERAL_ENTERO;
+    }
+
+    private String leerCadena() {
+
+        String lexema = "";
+
+        cadenaCerrada = false;
+        lexema += caracterActual();
+        avanzar();
+
+        while (hayCaracteres()) {
+
+            if (caracterActual() == '"') {
+
+                lexema += caracterActual();
+                avanzar();
+
+                cadenaCerrada = true;
+
+                return lexema;
+            }
+
+            if (caracterActual() == '\n') {
+                return lexema;
+            }
+
+            lexema += caracterActual();
+            avanzar();
+        }
+
+        return lexema;
+    }
+
     private TipoToken clasificarPalabra(String lexema) {
 
+        // Reservadas
         if (lexema.equals("AGENTE")
                 || lexema.equals("contexto")
                 || lexema.equals("variable")
@@ -422,6 +474,10 @@ public class AnalizadorLexico {
             return TipoToken.COMANDO_IA;
         }
 
+        if (lexema.equals("CARGAR")) {
+            return TipoToken.FUNCION;
+        }
+
         if (lexema.equals("SOBRE")
                 || lexema.equals("DESDE")
                 || lexema.equals("EN")
@@ -429,141 +485,32 @@ public class AnalizadorLexico {
 
             return TipoToken.CONECTOR;
         }
-
-        if (lexema.equals("CARGAR")) {
-
-            return TipoToken.FUNCION;
-        }
-
         return TipoToken.IDENTIFICADOR;
     }
-    
-     private String leerNumero() {
-         
-        String lexema = "";
 
-        while (hayCaracteres() && esDigito(caracterActual())) {
+    private boolean esComentarioLinea() {
 
-            lexema += caracterActual();
-            avanzar();
-        }
-
-        if (hayCaracteres() && caracterActual() == '.') {
-
-            lexema += caracterActual();
-            avanzar();
-
-            while (hayCaracteres() && esDigito(caracterActual())) {
-
-                lexema += caracterActual();
-                avanzar();
-            }
-        }
-
-        return lexema;
-    }
-     
-    private TipoToken clasificarNumero(String lexema) {
-        
-        for (int i = 0; i < lexema.length(); i++) {
-
-            if (lexema.charAt(i) == '.') {
-                return TipoToken.LITERAL_DECIMAL;
-            }
-        }
-
-        return TipoToken.LITERAL_ENTERO;
-    }
-    
-    private String leerCadena() {
-
-        String lexema = "";
-
-        cadenaCerrada = false;
-
-        lexema += caracterActual();
-        avanzar();
-
-        while (hayCaracteres()
-                && caracterActual() != '"'
-                && caracterActual() != '\n') {
-
-            lexema += caracterActual();
-            avanzar();
-        }
-
-        if (hayCaracteres() && caracterActual() == '"') {
-
-            lexema += caracterActual();
-            avanzar();
-
-            cadenaCerrada = true;
-        }
-
-        return lexema;
-    }
-    
-    private String leerDelimitador() {
-
-        String lexema = "";
-
-        lexema += caracterActual();
-        avanzar();
-
-        return lexema;
-    }
-     
-    private boolean esDelimitador(char caracter) {
-
-        return caracter == '{'
-                || caracter == '}'
-                || caracter == '('
-                || caracter == ')'
-                || caracter == ';'
-                || caracter == ',';
-    }
-    
-    private String leerDirectiva() {
-
-        String lexema = "";
-        lexema += caracterActual();
-        avanzar();
-        while (hayCaracteres()
-                && (esLetra(caracterActual())
-                || esDigito(caracterActual()))) {
-
-            lexema += caracterActual();
-            avanzar();
-        }
-
-        return lexema;
-    }
-
-    private boolean esDirectiva(String lexema) {
-
-        return lexema.equals("@modelo")
-                || lexema.equals("@rol")
-                || lexema.equals("@formato");
-    }
-    
-     private boolean esComentarioLinea() {
-
-        return caracterActual() == '/'
-                && posicion + 1 < entrada.length()
+        return posicion + 1 < entrada.length()
+                && entrada.charAt(posicion) == '/'
                 && entrada.charAt(posicion + 1) == '/';
     }
 
     private void ignorarComentarioLinea() {
 
-        while (hayCaracteres() && caracterActual() != '\n') {
+        avanzar();
+        avanzar();
+
+        while (hayCaracteres()
+                && caracterActual() != '\n') {
+
             avanzar();
         }
     }
 
     private boolean esComentarioBloque() {
 
-        return caracterActual() == '/'
-                && posicion + 1 < entrada.length()
+        return posicion + 1 < entrada.length()
+                && entrada.charAt(posicion) == '/'
                 && entrada.charAt(posicion + 1) == '*';
     }
 
@@ -583,23 +530,89 @@ public class AnalizadorLexico {
 
                 avanzar();
                 avanzar();
+
                 return;
             }
 
             avanzar();
         }
-
-        ErrorLexico error = new ErrorLexico(
+        agregarError(
                 "/*",
                 "Comentario de bloque sin cerrar",
                 filaInicial,
                 columnaInicial
         );
-
-        agregarError(error);
     }
-    
-     public Token[] getTokens() {
+
+    private void agregarToken(
+            String lexema,
+            TipoToken tipo,
+            int fila,
+            int columna) {
+
+        aumentarTokensSiEsNecesario();
+
+        tokens[cantidadTokens] = new Token(
+                numeroToken,
+                lexema,
+                tipo,
+                fila,
+                columna
+        );
+
+        cantidadTokens++;
+        numeroToken++;
+    }
+
+    private void agregarError(
+            String lexema,
+            String tipoError,
+            int fila,
+            int columna) {
+
+        aumentarErroresSiEsNecesario();
+
+        errores[cantidadErrores] = new ErrorLexico(
+                lexema,
+                tipoError,
+                fila,
+                columna
+        );
+
+        cantidadErrores++;
+    }
+
+    private void aumentarTokensSiEsNecesario() {
+
+        if (cantidadTokens >= tokens.length) {
+
+            Token[] nuevosTokens
+                    = new Token[tokens.length * 2];
+
+            for (int i = 0; i < tokens.length; i++) {
+                nuevosTokens[i] = tokens[i];
+            }
+
+            tokens = nuevosTokens;
+        }
+    }
+
+    private void aumentarErroresSiEsNecesario() {
+
+        if (cantidadErrores >= errores.length) {
+
+            ErrorLexico[] nuevosErrores
+                    = new ErrorLexico[errores.length * 2];
+
+            for (int i = 0; i < errores.length; i++) {
+                nuevosErrores[i] = errores[i];
+            }
+
+            errores = nuevosErrores;
+        }
+    }
+
+    public Token[] getTokens() {
 
         Token[] resultado = new Token[cantidadTokens];
 
@@ -612,7 +625,8 @@ public class AnalizadorLexico {
 
     public ErrorLexico[] getErrores() {
 
-        ErrorLexico[] resultado = new ErrorLexico[cantidadErrores];
+        ErrorLexico[] resultado
+                = new ErrorLexico[cantidadErrores];
 
         for (int i = 0; i < cantidadErrores; i++) {
             resultado[i] = errores[i];
@@ -620,6 +634,16 @@ public class AnalizadorLexico {
 
         return resultado;
     }
-    
-   
+
+    public int getCantidadTokens() {
+        return cantidadTokens;
+    }
+
+    public int getCantidadErrores() {
+        return cantidadErrores;
+    }
+
+    public int getFilaActual() {
+        return fila;
+    }
 }
