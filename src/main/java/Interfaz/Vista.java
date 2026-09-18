@@ -271,41 +271,30 @@ public class Vista extends javax.swing.JFrame {
         DefaultTableModel modeloErrores
                 = (DefaultTableModel) tablaErrores.getModel();
         modeloErrores.setRowCount(0);
-        // Quitar resaltados del editor
         txtEditor.getHighlighter().removeAllHighlights();
-        // Ya no hay archivo asociado
         archivoActual = null;
     }//GEN-LAST:event_MenuNuevoActionPerformed
 
     private void btnAnalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnalizarActionPerformed
         // Obtener el código escrito en el editor
         String entrada = txtEditor.getText();
-
-        // Crear el analizador léxico
         AnalizadorLexico analizador = new AnalizadorLexico(entrada);
 
-        // Ejecutar el análisis
         analizador.analizar();
-
-        // Obtener tokens y errores
         Token[] tokens = analizador.getTokens();
         ErrorLexico[] errores = analizador.getErrores();
 
-        // Obtener los modelos de las tablas
         DefaultTableModel modeloTokens
                 = (DefaultTableModel) tablaTokens.getModel();
 
         DefaultTableModel modeloErrores
                 = (DefaultTableModel) tablaErrores.getModel();
 
-        // Limpiar resultados anteriores
         modeloTokens.setRowCount(0);
         modeloErrores.setRowCount(0);
 
-        // Quitar resaltados anteriores del editor
         txtEditor.getHighlighter().removeAllHighlights();
 
-        // Mostrar tokens
         for (Token token : tokens) {
 
             modeloTokens.addRow(new Object[]{
@@ -634,7 +623,6 @@ public class Vista extends javax.swing.JFrame {
                 modeloErrores.setRowCount(0);
                 txtEditor.getHighlighter().removeAllHighlights();
 
-                // Guardamos el archivo que está abierto
                 archivoActual = archivo;
 
                 JOptionPane.showMessageDialog(
@@ -657,7 +645,6 @@ public class Vista extends javax.swing.JFrame {
     }//GEN-LAST:event_MenuAbrirActionPerformed
 
     private void jMenu1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu1MouseClicked
-        // TODO add your handling code here:
         System.exit(0);
     }//GEN-LAST:event_jMenu1MouseClicked
 
@@ -757,11 +744,8 @@ public class Vista extends javax.swing.JFrame {
     private void marcarLineasConErrores(ErrorLexico[] errores) {
 
         Highlighter highlighter = txtEditor.getHighlighter();
-
-        // Quitar resaltados anteriores
         highlighter.removeAllHighlights();
 
-        // Recorrer todos los errores
         for (ErrorLexico error : errores) {
 
             try {

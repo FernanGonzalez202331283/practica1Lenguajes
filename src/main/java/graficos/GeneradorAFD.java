@@ -135,17 +135,17 @@ public class GeneradorAFD {
         dot.append("  q1 -> q1 [label=\"L, D, _\"];\n\n");
         
         // DIRECTIVAS
-        // Después de @ debe venir una letra
+        // Despues de @ debe venir una letra
         dot.append("  q2 -> q3 [label=\"L\"];\n");
         
-        // Si viene número, _, espacio u otro carácter:
+        // Si viene numero, _, espacio u otro caracter:
         dot.append("  q2 -> qE [label=\"D, _, otro\", ")
            .append("color=\"#b85450\", fontcolor=\"#b85450\"];\n");
 
-        // Continúa leyendo el nombre de la directiva
+        // Continua leyendo el nombre de la directiva
         dot.append("  q3 -> q3 [label=\"L, D, _\"];\n\n");
 
-        // NÚMEROS
+        // NUMEROS
         // q4 = parte entera
         dot.append("  q4 -> q4 [label=\"D\"];\n");
 
@@ -155,11 +155,11 @@ public class GeneradorAFD {
         // Después del punto DEBE venir un dígito
         dot.append("  q5 -> q6 [label=\"D\"];\n");
 
-        // Si después del punto no viene dígito, error
+        // Si despues del punto no viene digito, error
         dot.append("  q5 -> qE [label=\"otro\", ")
            .append("color=\"#b85450\", fontcolor=\"#b85450\"];\n");
 
-        // Continúan los dígitos decimales
+        // Continuan los digitos decimales
         dot.append("  q6 -> q6 [label=\"D\"];\n\n");
 
         // CADENAS
@@ -265,10 +265,8 @@ public class GeneradorAFD {
                 StandardCharsets.UTF_8
             );
 
-            // Esperamos a que termine
             int codigo = proceso.waitFor();
 
-            // Si Graphviz terminó con error
             if (codigo != 0) {
 
                 return new ResultadoRender(
@@ -281,7 +279,6 @@ public class GeneradorAFD {
                 );
             }
 
-            // Verificamos que la imagen realmente exista
             if (!new File(rutaImagen).exists()) {
 
                 return new ResultadoRender(
@@ -292,7 +289,6 @@ public class GeneradorAFD {
                 );
             }
 
-            // Todo salió correctamente
             return new ResultadoRender(
                 true,
                 rutaImagen,
