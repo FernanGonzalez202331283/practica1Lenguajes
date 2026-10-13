@@ -297,8 +297,8 @@ public class Reportes {
     }
 
     private String obtenerClaseToken(TipoToken tipo) {
-
         switch (tipo) {
+                    /*  
 
             case DIRECTIVA:
                 return "directiva";
@@ -335,7 +335,7 @@ public class Reportes {
 
             case DELIMITADOR:
                 return "delimitador";
-
+                */
             default:
                 return "";
         }

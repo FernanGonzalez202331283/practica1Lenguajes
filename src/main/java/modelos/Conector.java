@@ -11,17 +11,27 @@ import java.util.List;
  * @author fernan
  */
 public class Conector {
-    private List<String> directivas;
-    private List<Agente> agentes;
-    private List<String> ejercuciones;
-    private List<String> exportaciones;
-
-    public Conector(List<String> directivas, List<Agente> agentes, List<String> ejercuciones, List<String> exportaciones) {
-        this.directivas = directivas;
-        this.agentes = agentes;
-        this.ejercuciones = ejercuciones;
-        this.exportaciones = exportaciones;
-    }
-    
-    
+   private String tipo;
+   private Expresion expresion;
+   
+   public Conector(String tipo, Expresion expresion){
+       this.tipo = tipo;
+       this.expresion = expresion;
+   }
+   
+   public String getTipo(){
+       return tipo;
+   }
+   
+   public void setTipo(String tipo){
+       this.tipo = tipo;
+   }
+   
+   public Expresion getExpresion(){
+       return expresion;
+   }
+   
+   public void setExpresion(Expresion expresion){
+       this.expresion = expresion;
+   }
 }

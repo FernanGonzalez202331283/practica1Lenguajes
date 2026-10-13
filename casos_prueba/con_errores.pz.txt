@@ -1,0 +1,46 @@
+@modelo "claude-sonnet-4-6"
+@Rol "analista de datos"
+@salida "pdf"
+@ formato
+
+// Programa con errores intencionales, distribuidos y variados,
+// para probar la recuperacion de errores en un archivo largo.
+AGENTE analista {
+    contexto = "Eres un analista de datos experto"
+    variable ventas = CARGAR("ventas.csv")
+    variable presupuesto = 1500.
+    variable meta = 0.
+    variable tasa = 99.
+
+    variable a = 1 # comentario # invalido # con numeral
+    variable b$ = 2
+    variable c~ = 3
+    variable d^ = 4
+
+    PREGUNTAR "Cuales son las tendencias?" SOBRE ventas & datos -> tendencias
+    RESUMIR tendencias EN 50% -> resumen
+    ANALIZAR ventas COMO ! tabla -> analisis
+    GENERAR informe DESDE tendencias - resumen
+    variable negativo = -5
+    variable otro = - 10
+
+    TRADUCIR resumen EN ingles ? -> resumenIngles
+    CLASIFICAR resumen EN (positiva, negativa\ neutra) -> categorias
+
+    contexto2 = "Esta cadena nunca se cierra
+    variable siguiente = 10
+
+    variable ruta = "otra cadena / con datos"
+    variable division = 8 / 2
+    variable calculo = 9 / dato
+
+    contexto3 = "Otra cadena sin cerrar tambien
+    variable ultimo = 20
+}
+
+EJECUTAR analista
+EXPORTAR resumen?, tendencias@, analisis
+
+/* Comentario de bloque
+   con varias lineas
+   que jamas se cierra

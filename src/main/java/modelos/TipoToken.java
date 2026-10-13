@@ -9,16 +9,43 @@ package modelos;
  * @author fernan
  */
 public enum TipoToken {
+   
+    // Directivas
     DIRECTIVA,
-    RESERVADA,
+
+    // Palabras reservadas de estructura
+    AGENTE,
+    CONTEXTO,
+    VARIABLE,
+    EJECUTAR,
+    EXPORTAR,
+
+    // Comandos de IA
     COMANDO_IA,
-    FUNCION,
+
+    // Función del sistema
+    CARGAR,
+
+    // Conectores
     CONECTOR,
-    IDENTIFICADOR,
-    LITERAL_CADENA,
-    LITERAL_ENTERO,
-    LITERAL_DECIMAL,
-    OPERADOR_ASIGNACION,
-    OPERADOR_CONCATENACION,
-    DELIMITADOR
+
+    // Operadores
+    IGUAL,
+    MAS,
+    FLECHA,
+
+    // Delimitadores
+    LLAVE_A,
+    LLAVE_C,
+    PAR_A,
+    PAR_C,
+    COMA,
+
+    // Literales e identificadores
+    ID,
+    CADENA,
+    NUMERO,
+
+    // Fin del archivo
+    EOF
 }

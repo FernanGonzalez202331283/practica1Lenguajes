@@ -49,7 +49,9 @@ public class GeneradorAFD {
             "q9",
             "q10",
             "q11",
-            "q13"
+            "q13",
+            "q18"
+             
         };
 
         for (String estado : aceptacion) {
@@ -122,6 +124,10 @@ public class GeneradorAFD {
 
         // Posibles comentarios
         dot.append("  q0 -> q14 [label=\"/\"];\n");
+        // Posibles comentarios
+        dot.append("  q0 -> q14 [label=\"=\"];\n");
+         // Delimitadores
+        dot.append("  q0 -> q18 [label=\"= ;\"];\n");
 
         // Espacios
         dot.append("  q0 -> q0 [label=\"espacio, tab, \\\\r, \\\\n\"];\n");

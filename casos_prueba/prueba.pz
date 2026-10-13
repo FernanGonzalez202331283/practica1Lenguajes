@@ -1,0 +1,7 @@
+AGENTE analista {
+    contexto = "hola"
+    variable ventas = CARGAR("ventas.csv")
+    PREGUNTAR "tendencias" SOBRE ventas -> resultado
+    @config
+    $ 
+}

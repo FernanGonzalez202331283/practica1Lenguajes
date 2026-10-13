@@ -37,6 +37,19 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>de.jflex</groupId>
+        <artifactId>jflex-maven-plugin</artifactId>
+        <version>1.9.1</version>
+        <executions>
+          <execution>
+            <id>generar-lexer</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
   <properties>

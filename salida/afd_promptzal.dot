@@ -16,6 +16,7 @@ digraph AFD_PromptZal {
   q10 [shape=circle, peripheries=2, style=filled, fillColor="#d5e8d4", color="#82b366"];
   q11 [shape=circle, peripheries=2, style=filled, fillColor="#d5e8d4", color="#82b366"];
   q13 [shape=circle, peripheries=2, style=filled, fillColor="#d5e8d4", color="#82b366"];
+  q18 [shape=circle, peripheries=2, style=filled, fillColor="#d5e8d4", color="#82b366"];
   q0 [shape=circle, style=filled, fillColor="#dae8fc", color="#6c8ebf"];
   q2 [shape=circle, style=filled, fillColor="#ffe6cc", color="#d79b00"];
   q5 [shape=circle, style=filled, fillColor="#ffe6cc", color="#d79b00"];
@@ -36,6 +37,8 @@ digraph AFD_PromptZal {
   q0 -> q11 [label="{ } ( ) , ;"];
   q0 -> q12 [label="-"];
   q0 -> q14 [label="/"];
+  q0 -> q14 [label="="];
+  q0 -> q18 [label="= ;"];
   q0 -> q0 [label="espacio, tab, \\r, \\n"];
   q0 -> qE [label="otro", color="#b85450", fontcolor="#b85450"];
 

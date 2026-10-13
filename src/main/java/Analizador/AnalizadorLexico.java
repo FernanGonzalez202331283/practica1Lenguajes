@@ -45,7 +45,7 @@ public class AnalizadorLexico {
     }
 
     public void analizar() {
-
+        /*
         while (hayCaracteres()) {
 
             if (esEspacio(caracterActual())) {
@@ -226,6 +226,23 @@ public class AnalizadorLexico {
 
                 continue;
             }
+            // Operador de concatenación
+            if (caracterActual() == '#') {
+
+                int filaInicial = fila;
+                int columnaInicial = columna;
+
+                avanzar();
+
+                agregarToken(
+                        "#",
+                        TipoToken.OPERADOR_CONCATENACION,
+                        filaInicial,
+                        columnaInicial
+                );
+
+                continue;
+            }
 
             // Delimitadores
             if (esDelimitador(caracterActual())) {
@@ -280,6 +297,8 @@ public class AnalizadorLexico {
 
             avanzar();
         }
+        */  
+
     }
 
     private boolean hayCaracteres() {
@@ -411,6 +430,7 @@ public class AnalizadorLexico {
     }
 
     private TipoToken clasificarNumero(String lexema) {
+                /*  
 
         if (lexema.indexOf('.') >= 0) {
             return TipoToken.LITERAL_DECIMAL;
@@ -485,7 +505,9 @@ public class AnalizadorLexico {
 
             return TipoToken.CONECTOR;
         }
-        return TipoToken.IDENTIFICADOR;
+               */  
+        return TipoToken.COMANDO_IA;
+
     }
 
     private boolean esComentarioLinea() {
