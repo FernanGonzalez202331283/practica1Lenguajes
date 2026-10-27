@@ -11,10 +11,12 @@ package modelos;
 public class Variable {
     private String nombre;
     private Expresion expresion;
+    private int fila;
     
-    public Variable(String nombre, Expresion expresion){
+    public Variable(String nombre, Expresion expresion, int fila){
         this.nombre = nombre;
         this.expresion = expresion;
+        this.fila = fila;
     }
     
     public String getNombre(){
@@ -31,5 +33,13 @@ public class Variable {
     
     public void setExpresion(Expresion expresion){
         this.expresion = expresion;
+    }
+
+    public int getFila() {
+        return fila;
+    }
+
+    public void setFila(int fila) {
+        this.fila = fila;
     }
 }

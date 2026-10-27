@@ -1,20 +1,7 @@
-@modelo "claude-sonnet-4-6"
-@rol "analista de datos"
-@formato "markdown"
-
 AGENTE analista {
-    contexto = "Eres un analista de datos experto"
-
-    variable ventas = CARGAR("ventas.csv")
-
-    PREGUNTAR "Cuales son las 3 tendencias principales?"
-        SOBRE ventas
-        -> tendencias
-
-    RESUMIR tendencias
-        EN 100 palabras
-        -> resumen
+    contexto = "Especialista en análisis de datos"
+    ANALIZAR "las ventas del trimestre" SOBRE datos -> analisis
+}
 
 EJECUTAR analista
-
-EXPORTAR resumen
+EXPORTAR analisis

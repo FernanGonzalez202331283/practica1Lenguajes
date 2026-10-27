@@ -1,0 +1,1 @@
+La compilación finalizó con errores. Revisa la pestaña 'Errores'.

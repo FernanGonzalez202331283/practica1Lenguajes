@@ -4,8 +4,6 @@
  */
 package modelos;
 
-import java.util.List;
-
 /**
  *
  * @author fernan

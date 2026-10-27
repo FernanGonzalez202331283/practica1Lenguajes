@@ -9,8 +9,10 @@ import java.util.List;
 import modelos.Agente;
 import modelos.Comando;
 import modelos.Conector;
+import modelos.ErrorSemantico;
 import modelos.Expresion;
 import modelos.Programa;
+import modelos.Simbolo;
 import modelos.TablaSimbolos;
 import modelos.Variable;
 
@@ -19,319 +21,178 @@ import modelos.Variable;
  * @author fernan
  */
 public class AnalizadorSemantico {
-    private Programa programa;
-    private TablaSimbolos tablaSimbolos;
-    private List<String> errores;
-    List<String> nombresAgentes = new ArrayList<>();
+    
+    private final Programa programa;
+    private final TablaSimbolos tablaSimbolos;
+    private final List<ErrorSemantico> errores = new ArrayList<>();
 
     public AnalizadorSemantico(Programa programa, TablaSimbolos tablaSimbolos) {
         this.programa = programa;
         this.tablaSimbolos = tablaSimbolos;
-        this.errores = new ArrayList<>();
     }
-    
+
     public void analizar() {
         verificarContextos();
-
         verificarAgentesDuplicados();
-
         verificarVariablesDuplicadas();
-        
         verificarResultadosDuplicados();
-
         verificarEjecuciones();
-
         verificarVariables();
-
         verificarExportaciones();
     }
-    
-    private void verificarAgentesDuplicados() {
 
-        List<String> nombresAgentes = new ArrayList<>();
+    public List<ErrorSemantico> getErrores() {
+        return errores;
+    }
 
-        for (Agente agente : programa.getAgentes()) {
+    private void error(String descripcion, int fila) {
+        errores.add(new ErrorSemantico(descripcion, fila));
+    }
 
-            String nombre = agente.getNombre();
-
-            if (nombresAgentes.contains(nombre)) {
-
-                errores.add(
-                    "Error semantico: el agente '"
-                    + nombre
-                    + "' esta duplicado."
-                );
-
-            } else {
-
-                nombresAgentes.add(nombre);
+    private void verificarContextos() {
+        for (Agente a : programa.getAgentes()) {
+            if (a.getContexto() != null && a.getContexto().trim().isEmpty()) {
+                error("el agente '" + a.getNombre()
+                        + "' debe tener un contexto con contenido.", a.getFila());
             }
         }
     }
-    
-    private void verificarResultadosDuplicados() {
-        for (Agente agente : programa.getAgentes()) {
 
-            List<String> nombresResultados = new ArrayList<>();
+    private void verificarAgentesDuplicados() {
+        List<String> vistos = new ArrayList<>();
+        for (Agente a : programa.getAgentes()) {
+            if (vistos.contains(a.getNombre())) {
+                error("el agente '" + a.getNombre() + "' esta duplicado.", a.getFila());
+            } else {
+                vistos.add(a.getNombre());
+            }
+        }
+    }
 
-            for (Comando comando : agente.getComandos()) {
-
-                String nombre = comando.getDestino();
-
-                if (nombre == null) {
-                    continue;
+    private void verificarVariablesDuplicadas() {
+        for (Agente a : programa.getAgentes()) {
+            List<String> vistos = new ArrayList<>();
+            for (Variable v : a.getVariables()) {
+                if (vistos.contains(v.getNombre())) {
+                    error("la variable '" + v.getNombre()
+                            + "' ya fue declarada en el agente '" + a.getNombre() + "'.",
+                            v.getFila());
+                } else {
+                    vistos.add(v.getNombre());
                 }
+            }
+        }
+    }
 
-                for (Variable variable : agente.getVariables()) {
+    private void verificarResultadosDuplicados() {
+        for (Agente a : programa.getAgentes()) {
+            List<String> resultados = new ArrayList<>();
 
-                    if (nombre.equals(variable.getNombre())) {
+            for (Comando c : a.getComandos()) {
+                String nombre = c.getDestino();
+                if (nombre == null) continue;
 
-                        errores.add(
-                            "Error semantico: el resultado '"
-                            + nombre
-                            + "' ya existe como variable en el agente '"
-                            + agente.getNombre()
-                            + "'."
-                        );
-
+                for (Variable v : a.getVariables()) {
+                    if (nombre.equals(v.getNombre())) {
+                        error("el resultado '" + nombre
+                                + "' ya existe como variable en el agente '"
+                                + a.getNombre() + "'.", c.getFilaDestino());
                         break;
                     }
                 }
 
-                // Revisar si el resultado ya fue utilizado
-                // como destino de otro comando.
-                if (nombresResultados.contains(nombre)) {
-
-                    errores.add(
-                        "Error semantico: el resultado '"
-                        + nombre
-                        + "' ya fue declarado en el agente '"
-                        + agente.getNombre()
-                        + "'."
-                    );
-
+                if (resultados.contains(nombre)) {
+                    error("el resultado '" + nombre
+                            + "' ya fue declarado en el agente '"
+                            + a.getNombre() + "'.", c.getFilaDestino());
                 } else {
-
-                    nombresResultados.add(nombre);
+                    resultados.add(nombre);
                 }
             }
         }
     }
-    
-    private void verificarVariablesDuplicadas() {
-        for (Agente agente : programa.getAgentes()) {
 
-            List<String> nombresVariables = new ArrayList<>();
-            for (Variable variable : agente.getVariables()) {
-
-                String nombre = variable.getNombre();
-
-                if (nombresVariables.contains(nombre)) {
-
-                    errores.add(
-                        "Error semantico en fila "
-                        + variable.getFila()
-                        + ": la variable '"
-                        + nombre
-                        + "' ya fue declarada en el agente '"
-                        + agente.getNombre()
-                        + "'."
-                    );
-
-                } else {
-
-                    nombresVariables.add(nombre);
-                }
-            }
-        }
-    }
-    
-    private void verificarContextos() {
-
-        for (Agente agente : programa.getAgentes()) {
-
-            String contexto = agente.getContexto();
-            if (contexto == null || contexto.trim().isEmpty()) {
-
-                errores.add(
-                    "Error semantico: el agente '"
-                    + agente.getNombre()
-                    + "' debe tener un contexto con contenido."
-                );
-            }
-        }
-    }
-    
     private void verificarEjecuciones() {
-
-        for (String nombreEjecutado : programa.getEjecuciones()) {
-
+        for (int i = 0; i < programa.getEjecuciones().size(); i++) {
+            String nombre = programa.getEjecuciones().get(i);
             boolean existe = false;
 
-            for (Agente agente : programa.getAgentes()) {
+            for (Agente a : programa.getAgentes()) {
+                if (a.getNombre().equals(nombre)) { existe = true; break; }
+            }
 
-                if (agente.getNombre().equals(nombreEjecutado)) {
-                    existe = true;
+            if (!existe) {
+                error("se intenta ejecutar el agente '" + nombre + "', pero no existe.",
+                        programa.getFilaEjecucion(i));
+            }
+        }
+    }
+
+    private void verificarVariables() {
+        for (Agente a : programa.getAgentes()) {
+            List<String> disponibles = new ArrayList<>();
+
+            for (Variable v : a.getVariables()) {
+                verificarExpresion(v.getExpresion(), disponibles, a.getNombre());
+                disponibles.add(v.getNombre());
+            }
+
+            for (Comando c : a.getComandos()) {
+                verificarExpresion(c.getExpresion(), disponibles, a.getNombre());
+
+                for (Conector con : c.getConectores()) {
+                    verificarExpresion(con.getExpresion(), disponibles, a.getNombre());
+                }
+
+                if (c.getDestino() != null) {
+                    disponibles.add(c.getDestino());
+                }
+            }
+        }
+    }
+
+    private void verificarExpresion(Expresion e, List<String> disponibles, String agente) {
+        if (e == null) return;
+
+        List<String> terminos = e.getTerminos();
+        for (int i = 0; i < terminos.size(); i++) {
+            if (e.esVariable(i) && !disponibles.contains(terminos.get(i))) {
+                error("la variable '" + terminos.get(i)
+                        + "' no ha sido declarada en el agente '" + agente + "'.",
+                        e.getFila(i));
+            }
+        }
+    }
+
+    private void verificarExportaciones() {
+        List<String> revisadas = new ArrayList<>();
+
+        for (int i = 0; i < programa.getExportaciones().size(); i++) {
+            String nombre = programa.getExportaciones().get(i);
+            int fila = programa.getFilaExportacion(i);
+
+            if (revisadas.contains(nombre)) {
+                error("el identificador '" + nombre
+                        + "' esta duplicado en las exportaciones.", fila);
+                continue;
+            }
+            revisadas.add(nombre);
+
+            boolean valido = false;
+            for (Simbolo s : tablaSimbolos.getSimbolos()) {
+                if (s.getTipo().equals("AGENTE")) continue;
+                if (s.getNombre().equals(nombre)
+                        && programa.getEjecuciones().contains(s.getAmbito())) {
+                    valido = true;
                     break;
                 }
             }
 
-            if (!existe) {
-
-                errores.add(
-                    "Error semantico: se intenta ejecutar el agente '"
-                    + nombreEjecutado
-                    + "', pero no existe."
-                );
+            if (!valido) {
+                error("no se puede exportar '" + nombre
+                        + "' porque no pertenece a una variable o resultado "
+                        + "de un agente ejecutado.", fila);
             }
         }
-    }
-    
-    private void verificarVariables() {
-
-        for (Agente agente : programa.getAgentes()) {
-
-            List<String> variablesDisponibles = new ArrayList<>();
-
-            // Primero revisamos las variables declaradas.
-            for (Variable variable : agente.getVariables()) {
-
-                variablesDisponibles.add(variable.getNombre());
-            }
-            
-            for (Comando comando : agente.getComandos()) {
-
-                if (!comando.getTipo().equals("GENERAR")) {
-
-                    verificarExpresion(
-                        comando.getExpresion(),
-                        variablesDisponibles,
-                        agente.getNombre()
-                    );
-
-                } else {
-
-                    Expresion expresion = comando.getExpresion();
-
-                    if (expresion != null) {
-
-                        List<String> terminos = expresion.getTerminos();
-
-                        for (int i = 1; i < terminos.size(); i++) {
-
-                            if (expresion.esVariable(i)) {
-
-                                String nombre = terminos.get(i);
-
-                                if (!variablesDisponibles.contains(nombre)) {
-
-                                    errores.add(
-                                        "Error semantico en fila "
-                                        + expresion.getFila(i)
-                                        + ": la variable '"
-                                        + nombre
-                                        + "' no ha sido declarada en el agente '"
-                                        + agente.getNombre()
-                                        + "'."
-                                    );
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Los argumentos de los conectores sí se validan.
-                for (Conector conector : comando.getConectores()) {
-
-                    verificarExpresion(
-                        conector.getExpresion(),
-                        variablesDisponibles,
-                        agente.getNombre()
-                    );
-                }
-
-                // Registrar el resultado del comando.
-                if (comando.getDestino() != null) {
-                    variablesDisponibles.add(comando.getDestino());
-                }
-            }
-        }
-    }
-    
-    private void verificarExpresion(
-            Expresion expresion,
-            List<String> variablesDisponibles,
-            String nombreAgente) {
-
-        if (expresion == null) {
-            return;
-        }
-
-        List<String> terminos = expresion.getTerminos();
-
-        for (int i = 0; i < terminos.size(); i++) {
-
-            if (expresion.esVariable(i)) {
-
-                String nombre = terminos.get(i);
-
-                if (!variablesDisponibles.contains(nombre)) {
-
-                    errores.add(
-                        "Error semantico en fila "
-                        + expresion.getFila(i)
-                        + ": la variable '"
-                        + nombre
-                        + "' no ha sido declarada en el agente '"
-                        + nombreAgente
-                        + "'."
-                    );
-                }
-            }
-        }
-    }
-    
-    private void verificarExportaciones() {
-
-        // Revisar cada identificador indicado en EXPORTAR
-        for (String nombreExportado : programa.getExportaciones()) {
-
-            boolean existeEnAgenteEjecutado = false;
-
-            // Recorrer los símbolos registrados
-            for (modelos.Simbolo simbolo : tablaSimbolos.getSimbolos()) {
-
-                // Los agentes no se pueden exportar directamente
-                if (simbolo.getTipo().equals("AGENTE")) {
-                    continue;
-                }
-
-                // Comprobar si el nombre coincide con el símbolo
-                if (simbolo.getNombre().equals(nombreExportado)) {
-
-                    // Obtener el agente al que pertenece la variable o resultado
-                    String ambito = simbolo.getAmbito();
-
-                    // Comprobar si ese agente se ejecuta
-                    if (programa.getEjecuciones().contains(ambito)) {
-                        existeEnAgenteEjecutado = true;
-                        break;
-                    }
-                }
-            }
-
-            // Si no se encontró en ningún agente ejecutado, registrar error
-            if (!existeEnAgenteEjecutado) {
-                errores.add(
-                    "Error semantico: no se puede exportar '" + nombreExportado
-                    + "' porque no pertenece a una variable o resultado "
-                    + "de un agente ejecutado."
-                );
-            }
-        }
-    }
-    
-    public List<String> getErrores() {
-        return errores;
     }
 }

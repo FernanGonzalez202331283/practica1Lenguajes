@@ -12,48 +12,34 @@ import java.util.List;
  * @author fernan
  */
 public class Programa {
-    private List<String> directivas;
-    private List<Agente> agentes;
-    private List<String> ejecuciones;
-    private List<String> exportaciones;
-    
-    public Programa(){
-        directivas = new ArrayList<>();
-        agentes = new ArrayList<>();
-        ejecuciones = new ArrayList<>();
-        exportaciones = new ArrayList<>();
-    }
+    private List<Directiva> directivas = new ArrayList<>();
+    private List<Agente> agentes = new ArrayList<>();
+    private List<String> ejecuciones = new ArrayList<>();
+    private List<Integer> filasEjecuciones = new ArrayList<>();
+    private List<String> exportaciones = new ArrayList<>();
+    private List<Integer> filasExportaciones = new ArrayList<>();
 
-    public List<String> getDirectivas() {
-        return directivas;
-    }
+    public List<Directiva> getDirectivas() { return directivas; }
+    public List<Agente> getAgentes() { return agentes; }
+    public List<String> getEjecuciones() { return ejecuciones; }
+    public List<String> getExportaciones() { return exportaciones; }
 
-    public List<Agente> getAgentes() {
-        return agentes;
-    }
+    public int getFilaEjecucion(int i) { return filasEjecuciones.get(i); }
+    public int getFilaExportacion(int i) { return filasExportaciones.get(i); }
 
-    public List<String> getEjecuciones() {
-        return ejecuciones;
-    }
+    public void agregarDirectiva(Directiva d) { directivas.add(d); }
+    public void agregarAgente(Agente a) { agentes.add(a); }
 
-    public List<String> getExportaciones() {
-        return exportaciones;
+    public void agregarEjecucion(String nombre, int fila) {
+        ejecuciones.add(nombre);
+        filasEjecuciones.add(fila);
     }
+    public void agregarEjecucion(String nombre) { agregarEjecucion(nombre, 0); }
 
-    public void agregarDirectiva(String directiva){
-        directivas.add(directiva);
+    public void agregarExportacion(String nombre, int fila) {
+        exportaciones.add(nombre);
+        filasExportaciones.add(fila);
     }
-    
-    public void agregarAgente(Agente agente){
-        agentes.add(agente);
-    }
-    
-    public void agregarEjecucion(String ejecucion){
-        ejecuciones.add(ejecucion);
-    }
-    
-    public void agregarExportaciones(String exportacion){
-        exportaciones.add(exportacion);
-    }
+    public void agregarExportaciones(String nombre) { agregarExportacion(nombre, 0); }
     
 }

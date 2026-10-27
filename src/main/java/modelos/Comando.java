@@ -14,6 +14,8 @@ import java.util.List;
 public class Comando {
     private String tipo;
     private Expresion expresion; 
+    private int fila;
+    private int filaDestino;
     private List<Conector> conectores;
     private String destino;
     
@@ -42,7 +44,7 @@ public class Comando {
         return conectores;
     }
 
-    public void agragrConector(Conector conector){
+    public void agregarConector(Conector conector){
         conectores.add(conector);
     }
 
@@ -54,5 +56,9 @@ public class Comando {
         this.destino = destino;
     }
     
+    public int getFila() { return fila; }
+    public void setFila(int fila) { this.fila = fila; }
+    public int getFilaDestino() { return filaDestino; }
+    public void setFilaDestino(int filaDestino) {  this.filaDestino = filaDestino; }
     
 }

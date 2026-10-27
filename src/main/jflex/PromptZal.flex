@@ -64,8 +64,7 @@ import java.util.List;
 
 %}
 
-// DEFINICIONES
-
+//definiciones
 DIGITO = [0-9]
 
 LETRA = [a-zA-Z_]
@@ -74,7 +73,9 @@ ID = {LETRA}({LETRA}|{DIGITO})*
 
 NUMERO = {DIGITO}+(\.{DIGITO}+)?
 
-CADENA = \"([^\"\\]|\\.)*\"
+CADENA = \"([^\"\\\r\n]|\\[^\r\n])*\"
+
+CADENA_SIN_CERRAR = \"([^\"\\\r\n]|\\[^\r\n])*
 
 ESPACIOS = [ \t\r\n]+
 
@@ -161,7 +162,21 @@ COMENTARIO_BLOQUE = "/*"([^*]|\*+[^*/])*\*+"/"
     return crearToken(TipoToken.CARGAR);
 }
 
-// CADENAS
+// CADENAS SIN CERRAR
+{CADENA_SIN_CERRAR}
+{
+    errores.add(
+        new ErrorLexico(
+            yytext(),
+            "Cadena sin cerrar",
+            yyline + 1,
+            yycolumn + 1
+        )
+    );
+}
+
+
+// CADENAS VALIDAS
 {CADENA}
 {
     return crearToken(TipoToken.CADENA);

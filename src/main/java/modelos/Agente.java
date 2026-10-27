@@ -14,6 +14,7 @@ import java.util.List;
 public class Agente {
     private String nombre;
     private String contexto;
+    private int fila;
     
     private List<Variable> variables;
     private List<Comando> comandos;
@@ -23,7 +24,15 @@ public class Agente {
         this.variables = new ArrayList<>();
         this.comandos = new ArrayList<>();
     }
+    
+    
+    public Agente(String nombre, int fila) {
+        this(nombre);
+        this.fila = fila;
+    }
 
+    public int getFila() { return fila; }
+    
     public String getNombre() {
         return nombre;
     }
@@ -40,7 +49,7 @@ public class Agente {
         this.contexto = contexto;
     }
 
-    public List<Variable> getVaribales() {
+    public List<Variable> getVariables() {
         return variables;
     }
 

@@ -9,9 +9,12 @@ import java.util.List;
 import modelos.Agente;
 import modelos.Comando;
 import modelos.Conector;
+import modelos.Directiva;
 import modelos.ErrorSintactico;
 import modelos.Expresion;
 import modelos.Programa;
+import modelos.Simbolo;
+import modelos.TablaSimbolos;
 import modelos.TipoToken;
 import modelos.Token;
 import modelos.Variable;
@@ -22,29 +25,39 @@ import modelos.Variable;
  */
 public class Parser {
 
-   
     private List<Token> tokens;
     private int posicion;
     private Token tokenActual;
 
     private List<ErrorSintactico> errores = new ArrayList<>();
     private Programa programa;
+    private TablaSimbolos tablaSimbolos;
+
     public Parser(List<Token> tokens) {
 
         this.tokens = tokens;
         this.posicion = 0;
+
         programa = new Programa();
+        tablaSimbolos = new TablaSimbolos();
+
         if (tokens != null && !tokens.isEmpty()) {
             this.tokenActual = tokens.get(0);
+        } else {
+            this.tokenActual = null;
         }
     }
 
     public List<ErrorSintactico> getErrores() {
         return errores;
     }
-    
+
     public Programa getPrograma() {
         return programa;
+    }
+
+    public TablaSimbolos getTablaSimbolos() {
+        return tablaSimbolos;
     }
 
     private void avanzar() {
@@ -88,8 +101,6 @@ public class Parser {
                 || tipo == TipoToken.EJECUTAR
                 || tipo == TipoToken.EXPORTAR;
     }
-    
-    
 
     private void recuperar() {
 
@@ -101,16 +112,52 @@ public class Parser {
     }
 
     public void analizar() {
-
+        if (tokenActual == null) {
+            return;
+        }
         programa();
     }
 
     private void programa() {
-
         directivas();
         agentes();
-        ejecuciones();
-        exportar();
+        // Analizar la sección obligatoria de ejecuciones
+        if (tokenActual.getTipo() == TipoToken.EJECUTAR) {
+
+            ejecuciones();
+
+        } else {
+
+            registrarError(TipoToken.EJECUTAR.toString());
+
+            if (tokenActual.getTipo() != TipoToken.EOF) {
+                recuperarNivelSuperior();
+            }
+
+            if (tokenActual.getTipo() == TipoToken.EJECUTAR) {
+                ejecuciones();
+            }
+        }
+
+        // Analizar la sección obligatoria de exportación
+        if (tokenActual.getTipo() == TipoToken.EXPORTAR) {
+
+            exportar();
+
+        } else {
+
+            registrarError(TipoToken.EXPORTAR.toString());
+
+            if (tokenActual.getTipo() != TipoToken.EOF) {
+                recuperarNivelSuperior();
+            }
+
+            if (tokenActual.getTipo() == TipoToken.EXPORTAR) {
+                exportar();
+            }
+        }
+
+        // Verificar el final del archivo
         consumir(TipoToken.EOF);
     }
 
@@ -118,14 +165,43 @@ public class Parser {
 
         if (tokenActual.getTipo() == TipoToken.DIRECTIVA) {
 
+            String nombre = tokenActual.getLexema();
+            int fila = tokenActual.getFila();
+
             consumir(TipoToken.DIRECTIVA);
-            consumir(TipoToken.CADENA);
+
+            if (tokenActual.getTipo() == TipoToken.CADENA) {
+
+                String valor = tokenActual.getLexema();
+                valor = valor.substring(1, valor.length() - 1);
+                consumir(TipoToken.CADENA);
+
+                programa.agregarDirectiva(new Directiva(nombre, valor, fila));
+
+            } else {
+                consumir(TipoToken.CADENA);  
+            }
 
             directivas();
         }
     }
 
     private void agentes() {
+
+        if (tokenActual.getTipo() != TipoToken.AGENTE) {
+            registrarError(TipoToken.AGENTE.toString());
+
+            while (tokenActual.getTipo() != TipoToken.EOF
+                    && tokenActual.getTipo() != TipoToken.AGENTE
+                    && tokenActual.getTipo() != TipoToken.EJECUTAR
+                    && tokenActual.getTipo() != TipoToken.EXPORTAR) {
+                avanzar();
+            }
+
+            if (tokenActual.getTipo() != TipoToken.AGENTE) {
+                return;
+            }
+        }
 
         agente();
         masAgentes();
@@ -144,71 +220,159 @@ public class Parser {
 
         consumir(TipoToken.AGENTE);
 
-        String nombre = tokenActual.getLexema();
-        consumir(TipoToken.ID);
+        // Verificar que el agente tenga un nombre
+        if (tokenActual.getTipo() != TipoToken.ID) {
+            registrarError(TipoToken.ID.toString());
 
-        Agente agente = new Agente(nombre);
+            // Recuperar el analisis
+            while (tokenActual.getTipo() != TipoToken.EOF
+                    && tokenActual.getTipo() != TipoToken.AGENTE
+                    && tokenActual.getTipo() != TipoToken.EJECUTAR
+                    && tokenActual.getTipo() != TipoToken.EXPORTAR) {
 
-        consumir(TipoToken.LLAVE_A);
+                avanzar();
+            }
 
-        contexto(agente);
-        variables(agente);
-        comandos(agente);
-
-        consumir(TipoToken.LLAVE_C);
-
-        programa.agregarAgente(agente);
-    }
-
-    private void contexto(Agente agente) {
-
-        consumir(TipoToken.CONTEXTO);
-
-        if (!consumir(TipoToken.IGUAL)) {
-
-            recuperarContexto();
             return;
         }
 
+        String nombre = tokenActual.getLexema();
+        int fila = tokenActual.getFila();
+
+        consumir(TipoToken.ID);
+
+        if (!consumir(TipoToken.LLAVE_A)) {
+
+            while (tokenActual.getTipo() != TipoToken.EOF
+                    && tokenActual.getTipo() != TipoToken.AGENTE
+                    && tokenActual.getTipo() != TipoToken.EJECUTAR
+                    && tokenActual.getTipo() != TipoToken.EXPORTAR) {
+
+                avanzar();
+            }
+
+            return;
+        }
+        Agente agente = new Agente(nombre, fila);
+        programa.agregarAgente(agente);
+
+        tablaSimbolos.agregarSimbolo(new Simbolo(nombre, "AGENTE", "GLOBAL", fila));
+
+        if (!contexto(agente)) {
+            recuperarContexto();
+        }
+
+        variables(agente);
+        comandos(agente);
+
+        if (!consumir(TipoToken.LLAVE_C)) {
+            while (tokenActual.getTipo() != TipoToken.EOF
+                    && tokenActual.getTipo() != TipoToken.AGENTE
+                    && tokenActual.getTipo() != TipoToken.EJECUTAR
+                    && tokenActual.getTipo() != TipoToken.EXPORTAR) {
+                avanzar();
+            }
+        }
+
+    }
+
+    private boolean contexto(Agente agente) {
+
+        // Verificar que exista la palabra CONTEXTO
+        if (!consumir(TipoToken.CONTEXTO)) {
+            return false;
+        }
+
+        // Verificar el signo igual
+        if (!consumir(TipoToken.IGUAL)) {
+            recuperarContexto();
+            return false;
+        }
+
+        if (tokenActual.getTipo() != TipoToken.CADENA) {
+            registrarError(TipoToken.CADENA.toString());
+            recuperarContexto();
+            return false;
+        }
+
+        String texto = tokenActual.getLexema();
+
+        texto = texto.substring(1, texto.length() - 1);
+
         consumir(TipoToken.CADENA);
+        agente.setContexto(texto);
+
+        return true;
     }
 
     private void recuperarContexto() {
-
         while (tokenActual.getTipo() != TipoToken.EOF
                 && tokenActual.getTipo() != TipoToken.VARIABLE
                 && tokenActual.getTipo() != TipoToken.COMANDO_IA
-                && tokenActual.getTipo() != TipoToken.LLAVE_C) {
-
+                && tokenActual.getTipo() != TipoToken.LLAVE_C
+                && tokenActual.getTipo() != TipoToken.AGENTE
+                && tokenActual.getTipo() != TipoToken.EJECUTAR
+                && tokenActual.getTipo() != TipoToken.EXPORTAR) {
             avanzar();
         }
     }
-    
+
     private void variables(Agente agente) {
 
         if (tokenActual.getTipo() == TipoToken.VARIABLE) {
 
             consumir(TipoToken.VARIABLE);
 
+            if (tokenActual.getTipo() != TipoToken.ID) {
+                registrarError(TipoToken.ID.toString());
+                recuperar();
+                variables(agente);
+                return;
+            }
+
             String nombre = tokenActual.getLexema();
+            int fila = tokenActual.getFila();
             consumir(TipoToken.ID);
 
-            consumir(TipoToken.IGUAL);
+            Expresion expresion;
+            if (consumir(TipoToken.IGUAL)) {
+                expresion = expresion();
+            } else {
+                expresion = new Expresion();
+                expresion.setValida(false);
+            }
 
-            Expresion expresion = expresion();
+            agente.agregarVariables(new Variable(nombre, expresion, fila));
+            tablaSimbolos.agregarSimbolo(
+                    new Simbolo(nombre, "VARIABLE", agente.getNombre(), fila));
 
-            Variable variable = new Variable(nombre, expresion);
-
-            agente.agregarVariables(variable);
+            if (!expresion.isValida()) {
+                recuperar();
+            }
 
             variables(agente);
         }
     }
 
     private void comandos(Agente agente) {
-        
-        comando(agente);
-        masComandos(agente);
+        if (tokenActual.getTipo() == TipoToken.COMANDO_IA) {
+            comando(agente);
+            masComandos(agente);
+        } else {
+            registrarError(TipoToken.COMANDO_IA.toString());
+
+            // No intentar recuperar si ya terminó el archivo.
+            if (tokenActual.getTipo() == TipoToken.EOF) {
+                return;
+            }
+
+            recuperarComando();
+
+            if (tokenActual.getTipo() == TipoToken.COMANDO_IA) {
+                comando(agente);
+                masComandos(agente);
+            }
+        }
     }
 
     private void masComandos(Agente agente) {
@@ -221,26 +385,65 @@ public class Parser {
     }
 
     private void comando(Agente agente) {
-        String tipo = tokenActual.getLexema();
-        consumir(TipoToken.COMANDO_IA);
-        
-        Comando  comando = new Comando(tipo);
-        
-        Expresion expresion = expresion();
-        comando.setExpresion(expresion);
-        conectores(comando);
-       
-        if (!consumir(TipoToken.FLECHA)) {
 
+        if (tokenActual.getTipo() != TipoToken.COMANDO_IA) {
+            registrarError(TipoToken.COMANDO_IA.toString());
+            return;
+        }
+
+        String tipo = tokenActual.getLexema();
+        int filaComando = tokenActual.getFila();
+
+        consumir(TipoToken.COMANDO_IA);
+        Comando comando = new Comando(tipo);
+        comando.setFila(filaComando);
+        Expresion expresion;
+
+        if (tipo.equals("GENERAR")) {
+            expresion = expresion(true);
+        } else {
+            expresion = expresion(false);
+        }
+
+        if (!expresion.isValida() || expresion.getTerminos().isEmpty()) {
             recuperarComando();
             return;
         }
+
+        comando.setExpresion(expresion);
+        if (!conectores(comando)) {
+            return;
+        }
+
+        if (!consumir(TipoToken.FLECHA)) {
+            recuperarComando();
+            return;
+        }
+        if (tokenActual.getTipo() != TipoToken.ID) {
+            registrarError(TipoToken.ID.toString());
+            recuperarComando();
+            return;
+        }
+
         String destino = tokenActual.getLexema();
+        int filaDestino = tokenActual.getFila();
+
         consumir(TipoToken.ID);
+
         comando.setDestino(destino);
+        comando.setFilaDestino(filaDestino);
         agente.agregarComando(comando);
+
+        Simbolo simbolo = new Simbolo(
+                destino,
+                "RESULTADO_COMANDO",
+                agente.getNombre(),
+                filaDestino
+        );
+
+        tablaSimbolos.agregarSimbolo(simbolo);
     }
-    
+
     private void recuperarComando() {
         while (tokenActual.getTipo() != TipoToken.EOF
                 && tokenActual.getTipo() != TipoToken.COMANDO_IA
@@ -252,28 +455,36 @@ public class Parser {
         }
     }
 
-    private void conectores(Comando comando) {
+    private boolean conectores(Comando comando) {
         if (tokenActual.getTipo() == TipoToken.CONECTOR) {
-
             String tipo = tokenActual.getLexema();
-
             consumir(TipoToken.CONECTOR);
 
             Expresion expresion = expresion();
 
+            if (!expresion.isValida() || expresion.getTerminos().isEmpty()) {
+                recuperarComando();
+                return false;
+            }
+
             Conector conector = new Conector(tipo, expresion);
+            comando.agregarConector(conector);
 
-            comando.agragrConector(conector);
-
-            conectores(comando);
+            return conectores(comando);
         }
+
+        return true;
     }
 
     private Expresion expresion() {
+        return expresion(false);
+    }
+
+    private Expresion expresion(boolean primerIdEsTipoContenido) {
 
         Expresion expresion = new Expresion();
 
-        termino(expresion);
+        termino(expresion, primerIdEsTipoContenido);
 
         masTerminos(expresion);
 
@@ -286,50 +497,92 @@ public class Parser {
 
             consumir(TipoToken.MAS);
 
-            termino(expresion);
+            // Verificar que exista un termino despues de MAS.
+            if (tokenActual.getTipo() != TipoToken.CADENA
+                    && tokenActual.getTipo() != TipoToken.ID
+                    && tokenActual.getTipo() != TipoToken.NUMERO
+                    && tokenActual.getTipo() != TipoToken.CARGAR) {
+
+                registrarError("un termino despues de MAS");
+                expresion.setValida(false);
+
+                // Recuperar sin consumir la siguiente instruccion valida.
+                if (tokenActual.getTipo() != TipoToken.VARIABLE
+                        && tokenActual.getTipo() != TipoToken.COMANDO_IA
+                        && tokenActual.getTipo() != TipoToken.LLAVE_C
+                        && tokenActual.getTipo() != TipoToken.EJECUTAR
+                        && tokenActual.getTipo() != TipoToken.EXPORTAR
+                        && tokenActual.getTipo() != TipoToken.EOF) {
+
+                    recuperar();
+                }
+
+                return;
+            }
+
+            termino(expresion, false);
 
             masTerminos(expresion);
         }
     }
 
-    private void termino(Expresion expresion) {
+    private void termino(Expresion expresion, boolean primerIdEsTipoContenido) {
 
         if (tokenActual.getTipo() == TipoToken.CADENA) {
 
-            expresion.agregarTermino(tokenActual.getLexema());
-
+            expresion.agregarCadena(tokenActual.getLexema(), tokenActual.getFila());
             consumir(TipoToken.CADENA);
 
         } else if (tokenActual.getTipo() == TipoToken.ID) {
 
-            expresion.agregarTermino(tokenActual.getLexema());
+            String nombre = tokenActual.getLexema();
+            int fila = tokenActual.getFila();
 
+            if (primerIdEsTipoContenido) {
+                expresion.agregarTipoContenido(nombre, fila);
+            } else {
+                expresion.agregarVariable(nombre, fila);
+            }
             consumir(TipoToken.ID);
 
         } else if (tokenActual.getTipo() == TipoToken.NUMERO) {
 
+            int fila = tokenActual.getFila();
             String numero = tokenActual.getLexema();
-
             consumir(TipoToken.NUMERO);
 
             String unidad = unidad();
-
             if (unidad != null) {
                 numero += " " + unidad;
             }
-
-            expresion.agregarTermino(numero);
+            expresion.agregarNumero(numero, fila);
 
         } else if (tokenActual.getTipo() == TipoToken.CARGAR) {
 
-            String cargar = cargar();
+            int fila = tokenActual.getFila();
+            String archivo = cargar();
 
-            expresion.agregarTermino(cargar);
+            if (archivo != null) {
+                expresion.agregarCarga(archivo, fila);
+            } else {
+                expresion.setValida(false);
+            }
 
         } else {
 
             registrarError("CADENA, ID, NUMERO o CARGAR");
-            recuperar();
+
+            expresion.setValida(false);
+
+            if (tokenActual.getTipo() != TipoToken.FLECHA
+                    && tokenActual.getTipo() != TipoToken.LLAVE_C
+                    && tokenActual.getTipo() != TipoToken.COMANDO_IA
+                    && tokenActual.getTipo() != TipoToken.EJECUTAR
+                    && tokenActual.getTipo() != TipoToken.EXPORTAR
+                    && tokenActual.getTipo() != TipoToken.EOF) {
+
+                recuperar();
+            }
         }
     }
 
@@ -349,61 +602,112 @@ public class Parser {
 
     private String cargar() {
 
-        String resultado = tokenActual.getLexema();
-
         consumir(TipoToken.CARGAR);
 
-        consumir(TipoToken.PAR_A);
-
-        if (tokenActual.getTipo() == TipoToken.CADENA) {
-
-            resultado += "(";
-            resultado += tokenActual.getLexema();
-
-            consumir(TipoToken.CADENA);
-
-            resultado += ")";
-
-        } else {
-
-            consumir(TipoToken.CADENA);
+        if (!consumir(TipoToken.PAR_A)) {
+            return null;
         }
 
-        consumir(TipoToken.PAR_C);
+        if (tokenActual.getTipo() != TipoToken.CADENA) {
+            registrarError(TipoToken.CADENA.toString());
+            return null;
+        }
 
-        return resultado;
+        String archivo = tokenActual.getLexema();
+        consumir(TipoToken.CADENA);
+
+        if (!consumir(TipoToken.PAR_C)) {
+            return null;
+        }
+
+        return archivo;
     }
 
     private void ejecuciones() {
 
+        if (tokenActual.getTipo() != TipoToken.EJECUTAR) {
+            registrarError(TipoToken.EJECUTAR.toString());
+            recuperarNivelSuperior();
+            return;
+        }
+
         consumir(TipoToken.EJECUTAR);
+
+        if (tokenActual.getTipo() != TipoToken.ID) {
+            registrarError(TipoToken.ID.toString());
+            recuperarNivelSuperior();
+            return;
+        }
+
+        String nombre = tokenActual.getLexema();
+        int fila = tokenActual.getFila();
         consumir(TipoToken.ID);
+
+        programa.agregarEjecucion(nombre, fila);
+
         masEjecuciones();
     }
 
     private void masEjecuciones() {
-
         if (tokenActual.getTipo() == TipoToken.EJECUTAR) {
-
             consumir(TipoToken.EJECUTAR);
+            if (tokenActual.getTipo() != TipoToken.ID) {
+                registrarError(TipoToken.ID.toString());
+                return;
+            }
+            String nombre = tokenActual.getLexema();
+            int fila = tokenActual.getFila();
             consumir(TipoToken.ID);
+            programa.agregarEjecucion(nombre, fila);
             masEjecuciones();
         }
     }
 
     private void exportar() {
 
+        if (tokenActual.getTipo() != TipoToken.EXPORTAR) {
+            registrarError(TipoToken.EXPORTAR.toString());
+            recuperarNivelSuperior();
+            return;
+        }
+
         consumir(TipoToken.EXPORTAR);
+
+        if (tokenActual.getTipo() != TipoToken.ID) {
+            registrarError(TipoToken.ID.toString());
+            recuperarNivelSuperior();
+            return;
+        }
+
+        String nombre = tokenActual.getLexema();
+        int fila = tokenActual.getFila();
         consumir(TipoToken.ID);
+
+        programa.agregarExportacion(nombre, fila);
+
         masIds();
     }
 
+    private void recuperarNivelSuperior() {
+        while (tokenActual.getTipo() != TipoToken.EJECUTAR
+                && tokenActual.getTipo() != TipoToken.EXPORTAR
+                && tokenActual.getTipo() != TipoToken.EOF) {
+
+            avanzar();
+        }
+    }
+
     private void masIds() {
-
         if (tokenActual.getTipo() == TipoToken.COMA) {
-
             consumir(TipoToken.COMA);
+            if (tokenActual.getTipo() != TipoToken.ID) {
+                registrarError(TipoToken.ID.toString());
+                return;
+            }
+            String nombre = tokenActual.getLexema();
+            int fila = tokenActual.getFila();
             consumir(TipoToken.ID);
+            programa.agregarExportacion(nombre, fila);
             masIds();
         }
     }

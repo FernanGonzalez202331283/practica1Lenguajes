@@ -56,10 +56,10 @@ public class TablaSimbolos {
         return false;
     }
     
-    public void eliminarSimbolosAgente(String nombreAgente) {
+   public void eliminarSimbolosAgente(String nombreAgente) {
 
-        simbolos.removeIf(simbolo
-                -> simbolo.getNombre().equals(nombreAgente)
-                || simbolo.getAmbito().equals(nombreAgente));
+        simbolos.removeIf(s ->
+        (s.getTipo().equals("AGENTE") && s.getNombre().equals(nombreAgente))
+        || s.getAmbito().equals(nombreAgente));
     }
 }

@@ -1,4 +1,14 @@
-@modelo
-AGENTE asistente
-contexto "Ayudante de programación"
+@modelo "claude-sonnet-4-6"
 
+AGENTE analista {
+    contexto = "Analista de finanzas"
+    
+    // ERROR SEMÁNTICO: la variable 'datos_viejos' no ha sido declarada previamente
+    RESUMIR datos_viejos EN 50 palabras -> resumen
+}
+
+// ERROR SEMÁNTICO: 'agente_fantasma' no existe
+EJECUTAR agente_fantasma
+
+// ERROR SEMÁNTICO: 'variable_inexistente' no fue declarada ni producida
+EXPORTAR variable_inexistente
