@@ -37,6 +37,20 @@ public class IDEPrincipal extends javax.swing.JFrame {
 
     public IDEPrincipal() {
         initComponents();
+        // Barra de herramientas con botón Compilar
+        javax.swing.JToolBar barra = new javax.swing.JToolBar();
+        barra.setFloatable(false);
+        barra.setBackground(new java.awt.Color(37, 37, 38));
+
+        javax.swing.JButton botonCompilar = new javax.swing.JButton("▶ Compilar");
+        botonCompilar.setFocusPainted(false);
+        botonCompilar.setBackground(new java.awt.Color(14, 99, 156));
+        botonCompilar.setForeground(java.awt.Color.WHITE);
+        botonCompilar.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 12));
+        botonCompilar.addActionListener(e -> compilar());
+
+        barra.add(botonCompilar);
+        getContentPane().add(barra, java.awt.BorderLayout.NORTH);
         this.setLocationRelativeTo(null);
         java.awt.Color fondoOscuro = new java.awt.Color(30, 30, 30);
         java.awt.Color fondoConsola = new java.awt.Color(18, 18, 18);
@@ -213,8 +227,6 @@ public class IDEPrincipal extends javax.swing.JFrame {
         itemAbrir = new javax.swing.JMenuItem();
         itemGuardar = new javax.swing.JMenuItem();
         itemGuardarPrompt = new javax.swing.JMenuItem();
-        jMenu2 = new javax.swing.JMenu();
-        btnCompilar = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         itemRepErrores = new javax.swing.JMenuItem();
         itemRepSimbolos = new javax.swing.JMenuItem();
@@ -281,7 +293,7 @@ public class IDEPrincipal extends javax.swing.JFrame {
             .addGroup(ErroresLayout.createSequentialGroup()
                 .addGap(39, 39, 39)
                 .addComponent(tblError, javax.swing.GroupLayout.PREFERRED_SIZE, 623, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(27, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Errores", Errores);
@@ -313,7 +325,7 @@ public class IDEPrincipal extends javax.swing.JFrame {
             .addGroup(SimbolosLayout.createSequentialGroup()
                 .addGap(34, 34, 34)
                 .addComponent(tblSimbolos, javax.swing.GroupLayout.PREFERRED_SIZE, 632, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(23, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Simbolos", Simbolos);
@@ -338,14 +350,6 @@ public class IDEPrincipal extends javax.swing.JFrame {
 
         jMenuBar1.add(jMenu1);
 
-        jMenu2.setText("Ejecutar");
-
-        btnCompilar.setText("Compilar");
-        btnCompilar.addActionListener(this::btnCompilarActionPerformed);
-        jMenu2.add(btnCompilar);
-
-        jMenuBar1.add(jMenu2);
-
         jMenu3.setText("Reportes");
 
         itemRepErrores.setText("Reporte de Errores");
@@ -366,10 +370,6 @@ public class IDEPrincipal extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void btnCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCompilarActionPerformed
-        compilar();
-    }//GEN-LAST:event_btnCompilarActionPerformed
 
     private void itemAbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemAbrirActionPerformed
         // TODO add your handling code here:
@@ -599,7 +599,6 @@ public class IDEPrincipal extends javax.swing.JFrame {
     private javax.swing.JPanel Consola;
     private javax.swing.JPanel Errores;
     private javax.swing.JPanel Simbolos;
-    private javax.swing.JMenuItem btnCompilar;
     private javax.swing.JMenuItem itemAbrir;
     private javax.swing.JMenuItem itemGuardar;
     private javax.swing.JMenuItem itemGuardarPrompt;
@@ -607,7 +606,6 @@ public class IDEPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenuItem itemRepErrores;
     private javax.swing.JMenuItem itemRepSimbolos;
     private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane1;
